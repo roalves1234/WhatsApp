@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from datetime import datetime
 
 from execution.controllers import main_controller
+from execution.models.webhook import WebhookPayload
 
 app = FastAPI(
     title="WhatsApp Project Application",
@@ -19,13 +19,9 @@ async def read_root():
     return main_controller.deliver_home_view()
 
 @app.api_route("/webhook_resposta", methods=["POST"])
-async def webhook_resposta():
-    """
-    Webhook endpoint that returns a JSON with the current date and time only.
-    """
-    now = datetime.now()
+async def webhook_resposta(payload: WebhookPayload):
     return {
-        "data": now.strftime("%Y-%m-%d"),
-        "hora": now.strftime("%H:%M:%S"),
-        "data_hora": now.strftime("%Y-%m-%d %H:%M:%S")
+        "nome": payload.senderName,
+        "telefone": payload.phone,
+        "mensagem": payload.message.content if payload.message else None,
     }
