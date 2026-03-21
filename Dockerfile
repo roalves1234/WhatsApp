@@ -14,7 +14,6 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 # Copy application source code
 COPY execution /app/execution
-COPY .env /app/.env
 
 # Open Port 8000 for FastAPI
 EXPOSE 8000
