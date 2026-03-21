@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from datetime import datetime
 
 from execution.controllers import main_controller
 
@@ -16,3 +17,15 @@ async def read_root():
     Control delegated to the Controller layer.
     """
     return main_controller.deliver_home_view()
+
+@app.api_route("/webhook_resposta", methods=["POST"])
+async def webhook_resposta():
+    """
+    Webhook endpoint that returns a JSON with the current date and time only.
+    """
+    now = datetime.now()
+    return {
+        "data": now.strftime("%Y-%m-%d"),
+        "hora": now.strftime("%H:%M:%S"),
+        "data_hora": now.strftime("%Y-%m-%d %H:%M:%S")
+    }
