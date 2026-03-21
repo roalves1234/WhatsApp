@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env.example
+.venv
+__pycache__
+*.pyc
+.tmp
+.cursorrules
+.gemini*
+uv.lock

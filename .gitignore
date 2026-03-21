@@ -1,1 +1,12 @@
 git push.bat.lnk
+
+# Python
+.venv
+__pycache__/
+*.pyc
+
+# DOE specific
+.env
+.tmp/
+credentials.json
+token.json
