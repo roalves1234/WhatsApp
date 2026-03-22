@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from execution.controllers import controller
+from execution.controller import controller
 from execution.models.webhook import WebhookPayload
 
 app = FastAPI(
