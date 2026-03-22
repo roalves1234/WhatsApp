@@ -14,3 +14,12 @@ class WebhookPayload(BaseModel):
     senderName: Optional[str] = None
     phone: Optional[str] = None
     message: Optional[MessagePayload] = None
+
+
+class SendTextPayload(BaseModel):
+    """
+    Pydantic model representing the request body for
+    POST https://free.uazapi.com/send/text
+    """
+    number: str
+    text: str
