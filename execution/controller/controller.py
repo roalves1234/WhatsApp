@@ -47,7 +47,7 @@ async def send_text_reply(payload: WebhookPayload) -> dict:
     and return both the payload sent and the API response.
     """
     send_payload = SendTextPayload(
-        number=payload.phone,
+        number=payload.chat.phone,
         text="Você falou: " + payload.message.content,
     )
 
