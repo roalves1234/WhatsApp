@@ -10,7 +10,7 @@ from execution.models.webhook import SendTextPayload, WebhookPayload
 # Main Controller – Home view
 # ---------------------------------------------------------------------------
 UAZAPI_URL = "https://free.uazapi.com/send/text"
-UAZAPI_TOKEN = "08a7938e-c56b-439d-9b69-14cb22312f64"
+UAZAPI_TOKEN = "3e624f7a-bff7-407e-a337-463a893dae7c"
 
 
 def deliver_home_view() -> str:
@@ -50,6 +50,7 @@ async def send_text_reply(payload: WebhookPayload) -> dict:
         number=payload.chat.phone,
         text="Você falou: " + payload.message.content,
     )
+    print(send_payload.model_dump())    
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
