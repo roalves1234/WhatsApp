@@ -10,7 +10,7 @@ from execution.models.webhook import SendTextPayload, WebhookPayload
 # Main Controller – Home view
 # ---------------------------------------------------------------------------
 UAZAPI_URL = "https://free.uazapi.com/send/text"
-UAZAPI_TOKEN = "0fd9a34e-04d1-472e-86fc-6f4ec81600be"
+UAZAPI_TOKEN = "08a7938e-c56b-439d-9b69-14cb22312f64"
 
 
 def deliver_home_view() -> str:
