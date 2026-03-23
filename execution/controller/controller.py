@@ -5,9 +5,7 @@ import string
 import httpx
 
 from execution.models.webhook import EnvioPayload, RecebimentoPayload
-
-UAZAPI_URL = "https://free.uazapi.com/send/text"
-UAZAPI_TOKEN = "3e624f7a-bff7-407e-a337-463a893dae7c"
+from execution.uzapi import Uzapi
 
 
 def deliver_home_view() -> str:
@@ -47,12 +45,12 @@ async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
-                        UAZAPI_URL,
+                        Uzapi.URL,
                         json=envio_payload.model_dump(),
                         headers={
                             "Accept": "application/json",
                             "Content-Type": "application/json",
-                            "token": UAZAPI_TOKEN,
+                            "token": Uzapi.TOKEN,
                         },
                     )
 
