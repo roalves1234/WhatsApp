@@ -29,5 +29,13 @@ async def read_root():
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(payload: RecebimentoPayload):
-    print(">>> Chamada do webhook-recebimento")
-    return await controller.enviar_texto(payload)
+    if payload.chat.phone == "+55 64 9285-5050":
+        print(">>> Chamada do webhook-recebimento")
+        return await controller.enviar_texto(payload)
+    else:
+        print("Número evitado: " + payload.chat.phone)
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Número de telefone não autorizado"},
+        )
+
