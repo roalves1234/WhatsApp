@@ -26,3 +26,8 @@ async def webhook_recebimento(payload: RecebimentoPayload):
         return await controller.enviar_texto(payload)
     else:
         print("Número evitado: " + payload.chat.phone)
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Número de telefone não autorizado"},
+        )
+
