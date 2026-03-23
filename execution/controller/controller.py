@@ -4,7 +4,7 @@ import string
 
 import httpx
 
-from execution.models.webhook import SendTextPayload, WebhookPayload
+from execution.models.webhook import EnvioPayload, RecebimentoPayload
 
 # ---------------------------------------------------------------------------
 # Main Controller – Home view
@@ -40,17 +40,17 @@ def deliver_home_view() -> str:
 # ---------------------------------------------------------------------------
 # Webhook Controller – send text reply
 # ---------------------------------------------------------------------------
-async def send_text_reply(payload: WebhookPayload) -> dict:
+async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
     """
-    Build a SendTextPayload using webhook payload values,
+    Build a EnvioPayload using webhook payload values,
     POST it to the uazapi /send/text endpoint,
     and return both the payload sent and the API response.
     """
-    send_payload = SendTextPayload(
-        number=payload.chat.phone,
-        text="Você falou: " + payload.message.content,
+    send_payload = EnvioPayload(
+        number=payload_recebimento.chat.phone,
+        text="Você falou: " + payload_recebimento.message.content,
     )
-    print(send_payload.model_dump())    
+    print(send_payload.model_dump())
 
     async with httpx.AsyncClient() as client:
         response = await client.post(

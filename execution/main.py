@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from execution.controller import controller
-from execution.models.webhook import WebhookPayload
+from execution.models.webhook import RecebimentoPayload
 
 app = FastAPI(
     title="WhatsApp Project Application",
@@ -27,7 +27,7 @@ async def read_root():
     print(">>> Chamada do index.html")
     return controller.deliver_home_view()
 
-@app.api_route("/webhook_resposta", methods=["POST"])
-async def webhook_resposta(payload: WebhookPayload):
-    print(">>> Chamada do webhook_resposta")
-    return await controller.send_text_reply(payload)
+@app.api_route("/webhook-recebimento", methods=["POST"])
+async def webhook_recebimento(payload: RecebimentoPayload):
+    print(">>> Chamada do webhook-recebimento")
+    return await controller.enviar_texto(payload)
