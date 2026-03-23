@@ -6,9 +6,6 @@ import httpx
 
 from execution.models.webhook import EnvioPayload, RecebimentoPayload
 
-# ---------------------------------------------------------------------------
-# Main Controller – Home view
-# ---------------------------------------------------------------------------
 UAZAPI_URL = "https://free.uazapi.com/send/text"
 UAZAPI_TOKEN = "3e624f7a-bff7-407e-a337-463a893dae7c"
 
@@ -36,35 +33,31 @@ def deliver_home_view() -> str:
     except Exception as e:
         return f"<h1>Error loading view: {str(e)}</h1>"
 
-
-# ---------------------------------------------------------------------------
-# Webhook Controller – send text reply
-# ---------------------------------------------------------------------------
 async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
     """
     Build a EnvioPayload using webhook payload values,
     POST it to the uazapi /send/text endpoint,
     and return both the payload sent and the API response.
     """
-    send_payload = EnvioPayload(
+    envio_payload = EnvioPayload(
         number=payload_recebimento.chat.phone,
         text="Você falou: " + payload_recebimento.message.content,
     )
-    print(send_payload.model_dump())
+    print(envio_payload.model_dump())
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            UAZAPI_URL,
-            json=send_payload.model_dump(),
-            headers={
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "token": UAZAPI_TOKEN,
-            },
-        )
+                        UAZAPI_URL,
+                        json=envio_payload.model_dump(),
+                        headers={
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "token": UAZAPI_TOKEN,
+                        },
+                    )
 
     return {
-        "payload_enviado": send_payload.model_dump(),
+        "payload_enviado": envio_payload.model_dump(),
         "status_code": response.status_code,
         "resposta_api": response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
     }
