@@ -20,9 +20,10 @@ async def handler_erro_validacao(request: Request, exc: RequestValidationError):
     corpo_cru = await request.body()
     print("=" * 60)
     print(f">>> ERRO DE VALIDAÇÃO em {request.url.path}")
-    print(f">>> Body cru recebido: {corpo_cru.decode('utf-8', errors='replace')}")
     print(f">>> Detalhes do erro: {exc.errors()}")
+    print(f">>> Body cru recebido: {corpo_cru.decode('utf-8', errors='replace')}")
     print("=" * 60)
+    print("\n")
     return JSONResponse(
         status_code=422,
         content={"detail": exc.errors()},
