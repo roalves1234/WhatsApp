@@ -3,4 +3,4 @@ class Uzapi:
     Classe de constantes para a integração com a API da Uzapi.
     """
     URL = "https://roalves1234.uazapi.com/send/text"
-    TOKEN = "62147dd3-5b02-45bc-9da1-4fd045af562a"
+    TOKEN = "7d74751e-ea7d-4375-95a0-82ad1b069b72"
