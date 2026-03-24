@@ -1,4 +1,6 @@
+
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from execution.controller import controller
@@ -10,6 +12,23 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
+# Handler global para erros de validação (ex: payload fora do formato esperado)
+@app.exception_handler(RequestValidationError)
+async def handler_erro_validacao(request: Request, exc: RequestValidationError):
+    """Captura erros de validação do Pydantic e imprime detalhes no terminal."""
+    corpo_cru = await request.body()
+    print("=" * 60)
+    print(f">>> ERRO DE VALIDAÇÃO em {request.url.path}")
+    print(f">>> Body cru recebido: {corpo_cru.decode('utf-8', errors='replace')}")
+    print(f">>> Detalhes do erro: {exc.errors()}")
+    print("=" * 60)
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
     """
@@ -19,10 +38,11 @@ async def read_root():
     print(">>> Chamada do index.html")
     return controller.deliver_home_view()
 
+
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(payload: RecebimentoPayload):
     print(payload.model_dump())
-    
+
     if payload.chat.phone == "+55 66 9600-8819":
         print(">>> Chamada do webhook-recebimento")
         return await controller.enviar_texto(payload)
