@@ -7,6 +7,7 @@ class RecebimentoChatPayload(BaseModel):
 
 
 class RecebimentoMessagePayload(BaseModel):
+    mediaType: str
     content: Optional[str] = None
 
 
