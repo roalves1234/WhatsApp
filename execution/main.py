@@ -21,7 +21,9 @@ async def read_root():
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(payload: RecebimentoPayload):
-    if payload.chat.phone == "+55 64 9285-5050":
+    print(payload.model_dump())
+    
+    if payload.chat.phone == "+55 66 9600-8819":
         print(">>> Chamada do webhook-recebimento")
         return await controller.enviar_texto(payload)
     else:
