@@ -1,3 +1,4 @@
+import inspect
 import os
 import random
 import string
@@ -5,7 +6,7 @@ import string
 import httpx
 
 from execution.models.webhook import EnvioPayload, RecebimentoPayload
-from execution.uzapi import Uzapi
+from execution.controller.const import Uzapi
 
 
 class Controller:
@@ -36,9 +37,9 @@ class Controller:
     @staticmethod
     async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
         """
-        Build a EnvioPayload using webhook payload values,
-        POST it to the uazapi /send/text endpoint,
-        and return both the payload sent and the API response.
+        Monta um EnvioPayload com os dados do webhook recebido,
+        envia via POST ao endpoint /send/text da uazapi.
+        Imprime erro se o status code for >= 400.
         """
         envio_payload = EnvioPayload(
             number=payload_recebimento.chat.phone,
@@ -56,8 +57,7 @@ class Controller:
                             },
                         )
 
-        return {
-            "payload_enviado": envio_payload.model_dump(),
-            "status_code": response.status_code,
-            "resposta_api": response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
-        }
+        if response.status_code >= 400:
+            print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
+
+        return response.json()
