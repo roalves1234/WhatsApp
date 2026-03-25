@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from execution.controller import controller
+from execution.controller.controller import Controller
 from execution.models.webhook import RecebimentoPayload
 
 app = FastAPI(
@@ -17,12 +17,12 @@ app = FastAPI(
 @app.exception_handler(RequestValidationError)
 async def handler_erro_validacao(request: Request, exc: RequestValidationError):
     """Captura erros de validação do Pydantic e imprime detalhes no terminal."""
-    corpo_cru = await request.body()
+    body = await request.body()
     print(f"""
           {'=' * 60}
           >>> ERRO DE VALIDAÇÃO em {request.url.path}
           >>> Detalhes do erro: {exc.errors()}
-          >>> Body recebido: {corpo_cru.decode('utf-8', errors='replace')}
+          >>> Body recebido: {body.decode('utf-8', errors='replace')}
           {'=' * 60}
           """)
     return JSONResponse(
@@ -37,7 +37,7 @@ async def read_root():
     Deliver the main view.
     Control delegated to the Controller layer.
     """
-    return controller.deliver_home_view()
+    return Controller.deliver_home_view()
 
 
 def do_erro(mensagem: str) -> JSONResponse:
@@ -48,11 +48,14 @@ def do_erro(mensagem: str) -> JSONResponse:
     )
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
-async def webhook_recebimento(payload: RecebimentoPayload):
-    print(">>> PAYLOAD: " + str(payload.model_dump()))
+async def webhook_recebimento(request: Request, payload: RecebimentoPayload):
+    body = await request.body()
+    print(">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
 
-    if (payload.chat.phone == "+55 66 9600-8819") and (payload.message.mediaType == "text"):
-        return await controller.enviar_texto(payload)
+    if (payload.chat.phone == "+55 66 9600-8819"):
+        if (payload.message.type == "text"):
+            return await Controller.enviar_texto(payload)
+        return do_erro("Não é texto")
     else:
         return do_erro("Número de telefone não autorizado")
 

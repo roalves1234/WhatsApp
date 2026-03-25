@@ -8,53 +8,56 @@ from execution.models.webhook import EnvioPayload, RecebimentoPayload
 from execution.uzapi import Uzapi
 
 
-def deliver_home_view() -> str:
-    """
-    Reads the HTML view file and returns it.
-    Follows MVC: Controller fetching from View.
-    """
-    base_dir = os.path.join(os.path.dirname(__file__), "..")
-    view_path = os.path.join(base_dir, "views", "index.html")
-    version_path = os.path.join(base_dir, "version.txt")
+class Controller:
+    @staticmethod
+    def deliver_home_view() -> str:
+        """
+        Reads the HTML view file and returns it.
+        Follows MVC: Controller fetching from View.
+        """
+        base_dir = os.path.join(os.path.dirname(__file__), "..")
+        view_path = os.path.join(base_dir, "views", "index.html")
+        version_path = os.path.join(base_dir, "version.txt")
 
-    try:
-        with open(view_path, "r", encoding="utf-8") as file:
-            html_content = file.read()
+        try:
+            with open(view_path, "r", encoding="utf-8") as file:
+                html_content = file.read()
 
-        version = "Desconhecida"
-        if os.path.exists(version_path):
-            with open(version_path, "r", encoding="utf-8") as v_file:
-                version = v_file.read().strip()
+            version = "Desconhecida"
+            if os.path.exists(version_path):
+                with open(version_path, "r", encoding="utf-8") as v_file:
+                    version = v_file.read().strip()
 
-        html_content = html_content.replace("{{VERSION}}", version)
-        return html_content
-    except Exception as e:
-        return f"<h1>Error loading view: {str(e)}</h1>"
+            html_content = html_content.replace("{{VERSION}}", version)
+            return html_content
+        except Exception as e:
+            return f"<h1>Error loading view: {str(e)}</h1>"
 
-async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
-    """
-    Build a EnvioPayload using webhook payload values,
-    POST it to the uazapi /send/text endpoint,
-    and return both the payload sent and the API response.
-    """
-    envio_payload = EnvioPayload(
-        number=payload_recebimento.chat.phone,
-        text="Você falou: " + payload_recebimento.message.content,
-    )
+    @staticmethod
+    async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
+        """
+        Build a EnvioPayload using webhook payload values,
+        POST it to the uazapi /send/text endpoint,
+        and return both the payload sent and the API response.
+        """
+        envio_payload = EnvioPayload(
+            number=payload_recebimento.chat.phone,
+            text="Você falou: " + payload_recebimento.message.text,
+        )
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-                        Uzapi.URL,
-                        json=envio_payload.model_dump(),
-                        headers={
-                            "Accept": "application/json",
-                            "Content-Type": "application/json",
-                            "token": Uzapi.TOKEN,
-                        },
-                    )
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                            Uzapi.URL,
+                            json=envio_payload.model_dump(),
+                            headers={
+                                "Accept": "application/json",
+                                "Content-Type": "application/json",
+                                "token": Uzapi.TOKEN,
+                            },
+                        )
 
-    return {
-        "payload_enviado": envio_payload.model_dump(),
-        "status_code": response.status_code,
-        "resposta_api": response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
-    }
+        return {
+            "payload_enviado": envio_payload.model_dump(),
+            "status_code": response.status_code,
+            "resposta_api": response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
+        }

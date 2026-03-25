@@ -7,8 +7,8 @@ class RecebimentoChatPayload(BaseModel):
 
 
 class RecebimentoMessagePayload(BaseModel):
-    mediaType: str
-    content: Optional[Union[str, dict]] = None
+    type: str
+    text: str
 
 
 class RecebimentoPayload(BaseModel):
