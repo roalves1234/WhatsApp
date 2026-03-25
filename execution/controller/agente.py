@@ -3,7 +3,7 @@ from agno.models.openai import OpenAIChat
 from execution.controller.const import LLM
 import os
 
-class Agent:
+class Agente:
     """
     Classe que gerencia o agente de IA utilizando o framework Agno.
     Esta classe encapsula a lógica de comunicação com o modelo GPT da OpenAI.
