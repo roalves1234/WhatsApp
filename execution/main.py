@@ -40,6 +40,13 @@ async def read_root():
     return controller.deliver_home_view()
 
 
+def do_erro(mensagem: str) -> JSONResponse:
+    print(">>> ERRO: " + mensagem)  
+    return JSONResponse(
+        status_code=400,
+        content={"detail": mensagem},
+    )
+
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(payload: RecebimentoPayload):
     print(">>> PAYLOAD: " + str(payload.model_dump()))
@@ -47,8 +54,5 @@ async def webhook_recebimento(payload: RecebimentoPayload):
     if (payload.chat.phone == "+55 66 9600-8819") and (payload.message.mediaType == "text"):
         return await controller.enviar_texto(payload)
     else:
-        return JSONResponse(
-            status_code=400,
-            content={"detail": "Número de telefone não autorizado"},
-        )
+        return do_erro("Número de telefone não autorizado")
 
