@@ -19,9 +19,9 @@ async def handler_erro_validacao(request: Request, exc: RequestValidationError):
     """Captura erros de validação do Pydantic e imprime detalhes no terminal."""
     corpo_cru = await request.body()
     print("=" * 60)
-    print(f">>> ERRO DE VALIDAÇÃO em {request.url.path}")
-    print(f">>> Detalhes do erro: {exc.errors()}")
-    print(f">>> Body cru recebido: {corpo_cru.decode('utf-8', errors='replace')}")
+    print(f">>> ERRO DE VALIDAÇÃO em {request.url.path}\n")
+    print(f">>> Detalhes do erro: {exc.errors()}\n")
+    print(f">>> Body recebido: {corpo_cru.decode('utf-8', errors='replace')}\n")
     print("=" * 60)
     print("\n")
     return JSONResponse(
