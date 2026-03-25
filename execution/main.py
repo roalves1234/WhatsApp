@@ -1,7 +1,11 @@
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
+
+# Carrega as variáveis de ambiente do arquivo .env antes de qualquer inicialização
+load_dotenv()
 
 from execution.controller.controller import Controller
 from execution.models.webhook import RecebimentoPayload
