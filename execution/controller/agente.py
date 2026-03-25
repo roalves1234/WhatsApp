@@ -43,4 +43,4 @@ class Agente:
         :return: A resposta processada pela IA.
         """
         # O método run do Agno retorna um objeto de resposta
-        return "Resposta IA: " + self._agente.run(texto_entrada).content
+        return self._agente.run(texto_entrada).content
