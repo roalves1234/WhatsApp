@@ -1,16 +1,14 @@
 import inspect
 import os
-import random
-import string
-
 import httpx
 
 from execution.models.webhook import EnvioPayload, RecebimentoPayload
 from execution.controller.const import Uzapi
 from execution.controller.agente import Agente
 
-
 class Controller:
+    _agente = Agente()
+
     @staticmethod
     def deliver_home_view() -> str:
         """
@@ -66,12 +64,11 @@ class Controller:
     async def enviar_resposta(numero: str, texto: str) -> dict:
         """
         Orquestra o fluxo completo de resposta inteligente:
-        1. Obtém a resposta da LLM via classe Agente
+        1. Obtém a resposta da LLM via classe Agente (já instanciada no Controller)
         2. Envia a resposta ao remetente via Controller.enviar_texto
         """
-        # Consulta a LLM com o texto recebido pelo usuário
-        agente = Agente()
-        resposta_ia = agente.obter_resposta(texto)
+        # Consulta a LLM com o texto recebido pelo usuário usando a instância única
+        resposta_ia = Controller._agente.obter_resposta(texto)
 
         # Encaminha a resposta da IA para o número de origem
         return await Controller.enviar_texto(numero, resposta_ia)

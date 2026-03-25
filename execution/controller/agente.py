@@ -7,10 +7,22 @@ class Agente:
     """
     Classe que gerencia o agente de IA utilizando o framework Agno.
     Esta classe encapsula a lógica de comunicação com o modelo GPT da OpenAI.
+    Utiliza o padrão Singleton para garantir que o Agente seja criado uma única vez.
     """
-    def __init__(self):
+    _instancia = None
+
+    def __new__(cls):
         """
-        Inicializa o agente com o modelo especificado.
+        Garante que apenas uma instância da classe Agente exista.
+        """
+        if cls._instancia is None:
+            cls._instancia = super(Agente, cls).__new__(cls)
+            cls._instancia._inicializar()
+        return cls._instancia
+
+    def _inicializar(self):
+        """
+        Inicializa o agente com o modelo especificado (executado apenas uma vez).
         """
         # O framework Agno busca automaticamente a variável de ambiente OPENAI_API_KEY
         self._agente = Agent(
@@ -31,6 +43,4 @@ class Agente:
         :return: A resposta processada pela IA.
         """
         # O método run do Agno retorna um objeto de resposta
-        resultado = "Resposta IA: " + self._agente.run(texto_entrada).content
-        
-        return resultado
+        return "Resposta IA: " + self._agente.run(texto_entrada).content
