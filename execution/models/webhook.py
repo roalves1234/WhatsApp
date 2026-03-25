@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Union
 
 
 class RecebimentoChatPayload(BaseModel):
@@ -8,7 +8,7 @@ class RecebimentoChatPayload(BaseModel):
 
 class RecebimentoMessagePayload(BaseModel):
     mediaType: str
-    content: Optional[str] = None
+    content: Optional[Union[str, dict]] = None
 
 
 class RecebimentoPayload(BaseModel):
