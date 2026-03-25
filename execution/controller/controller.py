@@ -7,6 +7,7 @@ import httpx
 
 from execution.models.webhook import EnvioPayload, RecebimentoPayload
 from execution.controller.const import Uzapi
+from execution.controller.agente import Agente
 
 
 class Controller:
@@ -35,15 +36,14 @@ class Controller:
             return f"<h1>Error loading view: {str(e)}</h1>"
 
     @staticmethod
-    async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
+    async def enviar_texto(numero: str, texto: str) -> dict:
         """
-        Monta um EnvioPayload com os dados do webhook recebido,
-        envia via POST ao endpoint /send/text da uazapi.
-        Imprime erro se o status code for >= 400.
+        Envia um texto para um número de telefone via uazapi.
+        Imprime erro no console se o status code for >= 400.
         """
         envio_payload = EnvioPayload(
-            number=payload_recebimento.chat.phone,
-            text="Você falou: " + payload_recebimento.message.text,
+            number=numero,
+            text=texto,
         )
 
         async with httpx.AsyncClient() as client:
@@ -61,3 +61,17 @@ class Controller:
             print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
 
         return response.json()
+
+    @staticmethod
+    async def enviar_resposta(payload_recebimento: RecebimentoPayload) -> dict:
+        """
+        Orquestra o fluxo completo de resposta inteligente:
+        1. Obtém a resposta da LLM via classe Agente
+        2. Envia a resposta ao remetente via Controller.enviar_texto
+        """
+        # Consulta a LLM com o texto recebido pelo usuário
+        agente = Agente()
+        resposta_ia = agente.obter_resposta(payload_recebimento.message.text)
+
+        # Encaminha a resposta da IA para o número de origem
+        return await Controller.enviar_texto(payload_recebimento.chat.phone, resposta_ia)
