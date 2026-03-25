@@ -41,7 +41,6 @@ async def enviar_texto(payload_recebimento: RecebimentoPayload) -> dict:
         number=payload_recebimento.chat.phone,
         text="Você falou: " + payload_recebimento.message.content,
     )
-    print(envio_payload.model_dump())
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
