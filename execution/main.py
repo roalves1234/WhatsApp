@@ -52,10 +52,8 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload):
     body = await request.body()
     print(">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
 
-    if (payload.chat.phone == "+55 66 9600-8819"):
-        if (payload.message.type == "text"):
-            return await Controller.enviar_texto(payload)
-        return do_erro("Não é texto")
+    if (payload.chat.phone == "+55 66 9600-8819") and (payload.message.type == "text"):
+        return await Controller.enviar_texto(payload)
     else:
-        return do_erro("Número de telefone não autorizado")
+        do_erro("Número de telefone não autorizado ou não é texto")
 
