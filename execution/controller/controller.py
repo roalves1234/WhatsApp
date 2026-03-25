@@ -63,7 +63,7 @@ class Controller:
         return response.json()
 
     @staticmethod
-    async def enviar_resposta(payload_recebimento: RecebimentoPayload) -> dict:
+    async def enviar_resposta(numero: str, texto: str) -> dict:
         """
         Orquestra o fluxo completo de resposta inteligente:
         1. Obtém a resposta da LLM via classe Agente
@@ -71,7 +71,7 @@ class Controller:
         """
         # Consulta a LLM com o texto recebido pelo usuário
         agente = Agente()
-        resposta_ia = agente.obter_resposta(payload_recebimento.message.text)
+        resposta_ia = agente.obter_resposta(texto)
 
         # Encaminha a resposta da IA para o número de origem
-        return await Controller.enviar_texto(payload_recebimento.chat.phone, resposta_ia)
+        return await Controller.enviar_texto(numero, resposta_ia)
