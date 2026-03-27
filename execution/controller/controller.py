@@ -1,6 +1,5 @@
 import inspect
 import os
-import time
 import httpx
 
 from execution.models.webhook import EnvioPayload, RecebimentoPayload
@@ -69,12 +68,8 @@ class Controller:
         2. Envia a resposta ao remetente via Controller.enviar_texto
         """
         # Consulta a LLM com o texto recebido pelo usuário usando a instância única
-        inicio = time.time()
         resposta_ia = Controller._agente.obter_resposta(texto)
-        fim = time.time()
-        
-        tempo = fim - inicio
-        resposta_ia += f" (tempo de resposta: {tempo:.2f}s)"
 
-        # Encaminha a resposta da IA para o número de origem
-        return await Controller.enviar_texto(numero, resposta_ia)
+        # Encaminha a resposta da IA para o número de origem, incluindo o tempo de resposta
+        texto_resposta = f'{resposta_ia["content"]}\n⏱ {resposta_ia["time"]}'
+        return await Controller.enviar_texto(numero, texto_resposta)

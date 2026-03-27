@@ -1,3 +1,5 @@
+from datetime import timedelta
+from typing import Any
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from execution.controller.const import LLM
@@ -35,12 +37,19 @@ class Agente:
             markdown=True
         )
 
-    def obter_resposta(self, texto_entrada: str) -> str:
+    def obter_resposta(self, texto_entrada: str) -> dict[str, Any]:
         """
-        Envia o texto para a LLM e retorna o conteúdo da resposta.
-        
+        Envia o texto para a LLM e retorna um objeto com métricas da resposta.
+
         :param texto_entrada: O texto enviado pelo usuário.
-        :return: A resposta processada pela IA.
+        :return: Dict com content, time (segundos), input_tokens e output_tokens.
         """
-        # O método run do Agno retorna um objeto de resposta
-        return self._agente.run(texto_entrada).content
+        resposta = self._agente.run(texto_entrada)
+        duracao = resposta.metrics.duration or 0
+
+        return {
+            "content": resposta.content,
+            "time": str(timedelta(seconds=duracao)).split(".")[0],
+            "input_tokens": resposta.metrics.input_tokens,
+            "output_tokens": resposta.metrics.output_tokens,
+        }
