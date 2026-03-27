@@ -1,8 +1,9 @@
 import inspect
 import os
+from typing import Any
 import httpx
 
-from execution.models.webhook import EnvioPayload, RecebimentoPayload
+from execution.models.webhook import EnvioPayload
 from execution.controller.const import Uzapi
 from execution.controller.agente import Agente
 
@@ -34,7 +35,7 @@ class Controller:
             return f"<h1>Error loading view: {str(e)}</h1>"
 
     @staticmethod
-    async def enviar_texto(numero: str, texto: str) -> dict:
+    async def enviar_texto(numero: str, texto: str) -> dict[str, Any]:
         """
         Envia um texto para um número de telefone via uazapi.
         Imprime erro no console se o status code for >= 400.
@@ -56,12 +57,14 @@ class Controller:
                         )
 
         if response.status_code >= 400:
-            print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            frame = inspect.currentframe()
+            nome_funcao = frame.f_code.co_qualname if frame else "Controller.enviar_texto"
+            print(f">>> ERRO {nome_funcao}: {response.text}")
 
         return response.json()
 
     @staticmethod
-    async def enviar_resposta(numero: str, texto: str) -> dict:
+    async def enviar_resposta(numero: str, texto: str) -> dict[str, Any]:
         """
         Orquestra o fluxo completo de resposta inteligente:
         1. Obtém a resposta da LLM via classe Agente (já instanciada no Controller)
@@ -71,5 +74,5 @@ class Controller:
         resposta_ia = Controller._agente.obter_resposta(texto)
 
         # Encaminha a resposta da IA para o número de origem, incluindo o tempo de resposta
-        texto_resposta = f'{resposta_ia["content"]}\n⏱ {resposta_ia["time"]}'
+        texto_resposta = f"{resposta_ia.content}\n⏱ {resposta_ia.time}"
         return await Controller.enviar_texto(numero, texto_resposta)
