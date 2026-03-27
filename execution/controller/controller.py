@@ -1,6 +1,5 @@
 import inspect
 import os
-from typing import Any
 import httpx
 
 from execution.models.webhook import EnvioPayload
@@ -35,7 +34,7 @@ class Controller:
             return f"<h1>Error loading view: {str(e)}</h1>"
 
     @staticmethod
-    async def enviar_texto(numero: str, texto: str) -> dict[str, Any]:
+    async def enviar_texto(numero: str, texto: str) -> dict:
         """
         Envia um texto para um número de telefone via uazapi.
         Imprime erro no console se o status code for >= 400.
@@ -57,14 +56,12 @@ class Controller:
                         )
 
         if response.status_code >= 400:
-            frame = inspect.currentframe()
-            nome_funcao = frame.f_code.co_qualname if frame else "Controller.enviar_texto"
-            print(f">>> ERRO {nome_funcao}: {response.text}")
+            print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
 
         return response.json()
 
     @staticmethod
-    async def enviar_resposta(numero: str, texto: str) -> dict[str, Any]:
+    async def enviar_resposta(numero: str, texto: str) -> dict:
         """
         Orquestra o fluxo completo de resposta inteligente:
         1. Obtém a resposta da LLM via classe Agente (já instanciada no Controller)

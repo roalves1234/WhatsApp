@@ -1,4 +1,4 @@
-from datetime import timedelta
+import time
 from dataclasses import dataclass
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
@@ -51,12 +51,13 @@ class Agente:
         :param texto_entrada: O texto enviado pelo usuário.
         :return: Objeto com content, time (segundos), input_tokens e output_tokens.
         """
+        inicio = time.time()
         resposta = self._agente.run(texto_entrada)
-        duracao = resposta.metrics.duration or 0
+        duracao = time.time() - inicio
 
         return RespostaIA(
             content=resposta.content,
-            time=str(timedelta(seconds=duracao)).split(".")[0],
+            time=f"{duracao:.1f}s",
             input_tokens=resposta.metrics.input_tokens,
             output_tokens=resposta.metrics.output_tokens,
         )
