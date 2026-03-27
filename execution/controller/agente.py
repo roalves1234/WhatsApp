@@ -1,12 +1,11 @@
 import time
-from dataclasses import dataclass
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
+from pydantic import BaseModel
 from execution.controller.const import LLM
 
 
-@dataclass
-class RespostaIA:
+class RespostaIA(BaseModel):
     content: str
     time: str
     input_tokens: int | None
@@ -18,9 +17,10 @@ class Agente:
     Esta classe encapsula a lógica de comunicação com o modelo GPT da OpenAI.
     Utiliza o padrão Singleton para garantir que o Agente seja criado uma única vez.
     """
-    _instancia = None
+    _instancia: "Agente | None" = None
+    _agente: Agent
 
-    def __new__(cls):
+    def __new__(cls) -> "Agente":
         """
         Garante que apenas uma instância da classe Agente exista.
         """
@@ -29,7 +29,7 @@ class Agente:
             cls._instancia._inicializar()
         return cls._instancia
 
-    def _inicializar(self):
+    def _inicializar(self) -> None:
         """
         Inicializa o agente com o modelo especificado (executado apenas uma vez).
         """

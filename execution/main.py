@@ -19,7 +19,7 @@ app = FastAPI(
 
 # Handler global para erros de validação (ex: payload fora do formato esperado)
 @app.exception_handler(RequestValidationError)
-async def handler_erro_validacao(request: Request, exc: RequestValidationError):
+async def handler_erro_validacao(request: Request, exc: RequestValidationError) -> JSONResponse:
     """Captura erros de validação do Pydantic e imprime detalhes no terminal."""
     body = await request.body()
     print(f"""
@@ -36,7 +36,7 @@ async def handler_erro_validacao(request: Request, exc: RequestValidationError):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_root():
+async def read_root() -> HTMLResponse:
     """
     Deliver the main view.
     Control delegated to the Controller layer.
@@ -52,7 +52,7 @@ def do_erro(mensagem: str) -> JSONResponse:
     )
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
-async def webhook_recebimento(request: Request, payload: RecebimentoPayload):
+async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> JSONResponse:
     body = await request.body()
     print(">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
 
@@ -60,4 +60,3 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload):
         return await Controller.enviar_resposta(payload.chat.phone, payload.message.text)
     else:
         do_erro("Número de telefone não autorizado ou não é texto")
-

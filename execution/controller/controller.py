@@ -1,5 +1,7 @@
 import inspect
 import os
+from typing import Any
+
 import httpx
 
 from execution.models.webhook import EnvioPayload
@@ -7,7 +9,7 @@ from execution.controller.const import Uzapi
 from execution.controller.agente import Agente
 
 class Controller:
-    _agente = Agente()
+    _agente: Agente = Agente()
 
     @staticmethod
     def deliver_home_view() -> str:
@@ -34,7 +36,7 @@ class Controller:
             return f"<h1>Error loading view: {str(e)}</h1>"
 
     @staticmethod
-    async def enviar_texto(numero: str, texto: str) -> dict:
+    async def enviar_texto(numero: str, texto: str) -> dict[str, Any]:
         """
         Envia um texto para um número de telefone via uazapi.
         Imprime erro no console se o status code for >= 400.
@@ -61,7 +63,7 @@ class Controller:
         return response.json()
 
     @staticmethod
-    async def enviar_resposta(numero: str, texto: str) -> dict:
+    async def enviar_resposta(numero: str, texto: str) -> dict[str, Any]:
         """
         Orquestra o fluxo completo de resposta inteligente:
         1. Obtém a resposta da LLM via classe Agente (já instanciada no Controller)
