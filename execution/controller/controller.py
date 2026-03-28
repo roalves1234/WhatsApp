@@ -1,6 +1,5 @@
 import asyncio
 import inspect
-import os
 from typing import Any
 
 import httpx
@@ -8,33 +7,14 @@ import httpx
 from execution.models.webhook import EnvioPayload
 from execution.controller.const import Uzapi
 from execution.controller.agente import Agente
+from execution.controller.home import Home
 
 class Controller:
     _agente: Agente = Agente()
 
     @staticmethod
     def get_home() -> str:
-        """
-        Reads the HTML view file and returns it.
-        Follows MVC: Controller fetching from View.
-        """
-        base_dir = os.path.join(os.path.dirname(__file__), "..")
-        view_path = os.path.join(base_dir, "views", "index.html")
-        version_path = os.path.join(base_dir, "version.txt")
-
-        try:
-            with open(view_path, "r", encoding="utf-8") as file:
-                html_content = file.read()
-
-            version = "Desconhecida"
-            if os.path.exists(version_path):
-                with open(version_path, "r", encoding="utf-8") as v_file:
-                    version = v_file.read().strip()
-
-            html_content = html_content.replace("{{VERSION}}", version)
-            return html_content
-        except Exception as e:
-            return f"<h1>Error loading view: {str(e)}</h1>"
+        return Home.get()
 
     @staticmethod
     async def enviar_digitando(numero: str, texto: str) -> None:
