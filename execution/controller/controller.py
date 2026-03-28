@@ -3,6 +3,7 @@ from typing import Any
 from execution.controller.agente import Agente
 from execution.controller.home import Home
 from execution.controller.uzapi import Uzapi
+from execution.controller.version import Version
 
 
 class Controller:
@@ -30,5 +31,5 @@ class Controller:
         await Controller.enviar_digitando(numero, resposta_ia.content)
 
         # Encaminha a resposta da IA para o número de origem, incluindo o tempo de resposta
-        texto_resposta = f"{resposta_ia.content}\n⏱ {resposta_ia.time}"
+        texto_resposta = f"{resposta_ia.content}\n⏱ {resposta_ia.time}\n🏷️ v{Version().get()}"
         return await Uzapi.enviar_texto(numero, texto_resposta)
