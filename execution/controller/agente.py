@@ -1,6 +1,7 @@
 import time
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
+from agno.run.agent import RunOutput
 from pydantic import BaseModel
 from execution.controller.const import LLM
 
@@ -51,9 +52,9 @@ class Agente:
         :param texto_entrada: O texto enviado pelo usuário.
         :return: Objeto com content, time (segundos), input_tokens e output_tokens.
         """
-        inicio = time.time()
-        resposta = self._agente.run(texto_entrada)
-        duracao = time.time() - inicio
+        inicio: float = time.time()
+        resposta: RunOutput = self._agente.run(texto_entrada)
+        duracao: float = time.time() - inicio
 
         return RespostaIA(
             content=resposta.content,
