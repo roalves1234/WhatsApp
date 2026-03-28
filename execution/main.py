@@ -1,4 +1,6 @@
 
+from typing import Any
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -36,7 +38,7 @@ async def handler_erro_validacao(request: Request, exc: RequestValidationError) 
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_root() -> HTMLResponse:
+async def read_root() -> str:
     """
     Deliver the main view.
     Control delegated to the Controller layer.
@@ -44,19 +46,16 @@ async def read_root() -> HTMLResponse:
     return Controller.deliver_home_view()
 
 
-def do_erro(mensagem: str) -> JSONResponse:
-    print(">>> ERRO: " + mensagem)  
-    return JSONResponse(
-        status_code=400,
-        content={"detail": mensagem},
-    )
+def do_erro(mensagem: str) -> dict[str, Any]:
+    print(">>> ERRO: " + mensagem)
+    return {"detail": mensagem}
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
-async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> JSONResponse:
+async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> dict[str, Any]:
     body = await request.body()
     print(">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
 
     if (payload.chat.phone == "+55 66 9600-8819") and (payload.message.type == "text"):
         return await Controller.enviar_resposta(payload.chat.phone, payload.message.text)
     else:
-        do_erro("Número de telefone não autorizado ou não é texto")
+        return do_erro("Número de telefone não autorizado ou não é texto")
