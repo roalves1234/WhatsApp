@@ -47,7 +47,7 @@ class Controller:
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                Uzapi.URL_PRESENCE,
+                f"{Uzapi.URL}/message/presence",
                 json={
                     "number": numero,
                     "presence": "composing",
@@ -79,7 +79,7 @@ class Controller:
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                            Uzapi.URL,
+                            f"{Uzapi.URL}/send/text",
                             json=envio_payload.model_dump(),
                             headers={
                                 "Accept": "application/json",
