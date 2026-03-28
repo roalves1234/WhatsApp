@@ -1,5 +1,7 @@
 import os
 
+from execution.controller.version import Version
+
 
 class Home:
 
@@ -11,17 +13,12 @@ class Home:
         """
         base_dir = os.path.join(os.path.dirname(__file__), "..")
         view_path = os.path.join(base_dir, "views", "index.html")
-        version_path = os.path.join(base_dir, "version.txt")
 
         try:
             with open(view_path, "r", encoding="utf-8") as file:
                 html_content = file.read()
 
-            version = "Desconhecida"
-            if os.path.exists(version_path):
-                with open(version_path, "r", encoding="utf-8") as v_file:
-                    version = v_file.read().strip()
-
+            version = Version().get()
             html_content = html_content.replace("{{VERSION}}", version)
             return html_content
         except Exception as e:
