@@ -50,7 +50,7 @@ class Agente:
         Envia o texto para a LLM e retorna um objeto com métricas da resposta.
 
         :param texto_entrada: O texto enviado pelo usuário.
-        :return: Objeto com content, time (segundos), input_tokens e output_tokens.
+        :return: Objeto com content, time (segundos), input_tokens e output_tokens..
         """
         inicio: float = time.time()
         resposta: RunOutput = self._agente.run(texto_entrada)
