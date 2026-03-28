@@ -1,10 +1,10 @@
-
 from typing import Any
-
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
+from datetime import datetime
+
 
 # Carrega as variáveis de ambiente do arquivo .env antes de qualquer inicialização
 load_dotenv()
@@ -53,7 +53,9 @@ def do_erro(mensagem: str) -> dict[str, Any]:
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> dict[str, Any]:
     body = await request.body()
-    print(">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
+    print(f"\n\n")
+    print(f">>> DATA/HORA: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    print(f">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
 
     if (
         payload.chat is not None
