@@ -5,7 +5,7 @@ from typing import Any
 import httpx
 
 from execution.models.webhook import EnvioPayload
-from execution.controller.const import Uzapi
+from execution.controller.const import UzapiConfig
 
 
 class Uzapi:
@@ -21,7 +21,7 @@ class Uzapi:
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{Uzapi.URL}/message/presence",
+                f"{UzapiConfig.URL}/message/presence",
                 json={
                     "number": numero,
                     "presence": "composing",
@@ -30,7 +30,7 @@ class Uzapi:
                 headers={
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "token": Uzapi.TOKEN,
+                    "token": UzapiConfig.TOKEN,
                 },
             )
 
@@ -53,12 +53,12 @@ class Uzapi:
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{Uzapi.URL}/send/text",
+                f"{UzapiConfig.URL}/send/text",
                 json=envio_payload.model_dump(),
                 headers={
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "token": Uzapi.TOKEN,
+                    "token": UzapiConfig.TOKEN,
                 },
             )
 

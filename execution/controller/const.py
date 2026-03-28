@@ -1,4 +1,4 @@
-class Uzapi:
+class UzapiConfig:
     """
     Classe de constantes para a integração com a API da Uzapi.
     """
