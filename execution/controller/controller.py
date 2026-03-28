@@ -12,7 +12,7 @@ class Controller:
     _agente: Agente = Agente()
 
     @staticmethod
-    def deliver_home_view() -> str:
+    def get_home() -> str:
         """
         Reads the HTML view file and returns it.
         Follows MVC: Controller fetching from View.

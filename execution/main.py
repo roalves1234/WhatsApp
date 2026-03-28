@@ -43,7 +43,7 @@ async def read_root() -> str:
     Deliver the main view.
     Control delegated to the Controller layer.
     """
-    return Controller.deliver_home_view()
+    return Controller.get_home()
 
 
 def do_erro(mensagem: str) -> dict[str, Any]:
