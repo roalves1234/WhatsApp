@@ -17,15 +17,11 @@ class Controller:
         await Uzapi.enviar_digitando(numero, texto)
 
     @staticmethod
-    async def enviar_texto(numero: str, texto: str) -> dict[str, Any]:
-        return await Uzapi.enviar_texto(numero, texto)
-
-    @staticmethod
     async def enviar_resposta(numero: str, texto: str) -> dict[str, Any]:
         """
         Orquestra o fluxo completo de resposta inteligente:
         1. Obtém a resposta da LLM via classe Agente (já instanciada no Controller)
-        2. Envia a resposta ao remetente via Controller.enviar_texto
+        2. Envia a resposta ao remetente via Uzapi.enviar_texto
         """
         # Consulta a LLM com o texto recebido pelo usuário usando a instância única
         resposta_ia = Controller._agente.obter_resposta(texto)
@@ -35,4 +31,4 @@ class Controller:
 
         # Encaminha a resposta da IA para o número de origem, incluindo o tempo de resposta
         texto_resposta = f"{resposta_ia.content}\n⏱ {resposta_ia.time}"
-        return await Controller.enviar_texto(numero, texto_resposta)
+        return await Uzapi.enviar_texto(numero, texto_resposta)
