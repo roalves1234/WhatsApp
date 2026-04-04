@@ -30,3 +30,4 @@ class EnvioPayload(BaseModel):
     """
     number: str
     text: str
+    readmessages: bool = True
