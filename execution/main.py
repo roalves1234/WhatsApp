@@ -10,6 +10,7 @@ from datetime import datetime
 load_dotenv()
 
 from execution.controller.controller import Controller
+from execution.controller.classes import InteracaoAssistant
 from execution.models.webhook import RecebimentoPayload
 
 app = FastAPI(
@@ -51,7 +52,7 @@ def do_erro(mensagem: str) -> dict[str, Any]:
     return {"detail": mensagem}
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
-async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> dict[str, Any]:
+async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> InteracaoAssistant | dict[str, Any]:
     body = await request.body()
     print(f"\n\n")
     print(f">>> DATA/HORA: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
