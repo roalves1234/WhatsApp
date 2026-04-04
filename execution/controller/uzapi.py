@@ -17,7 +17,7 @@ class Uzapi:
         A duração é calculada proporcionalmente ao tamanho do texto (mín. 2s, máx. 8s).
         A presença é cancelada automaticamente ao enviar a mensagem.
         """
-        duracao_ms = min(max(len(texto) * 30, 2000), 8000)
+        duracao_ms = min(max(len(texto) * 30, 2000), 4000)
 
         async with httpx.AsyncClient() as client:
             response = await client.post(

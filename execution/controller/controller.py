@@ -15,10 +15,6 @@ class Controller:
         return Home.get()
 
     @staticmethod
-    async def enviar_digitando(numero: str, texto: str) -> None:
-        await Uzapi.enviar_digitando(numero, texto)
-
-    @staticmethod
     async def enviar_resposta(numero: str, texto: str) -> dict[str, Any]:
         """
         Orquestra o fluxo completo de resposta inteligente:
@@ -37,7 +33,7 @@ class Controller:
                                         """).strip()
 
         # Simula digitação proporcional ao tamanho da resposta (mín. 2s, máx. 8s)
-        await Controller.enviar_digitando(numero, texto_resposta)
+        await Uzapi.enviar_digitando(numero, texto_resposta)
 
         # Retorno
         return await Uzapi.enviar_texto(numero, texto_resposta)

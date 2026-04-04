@@ -10,6 +10,7 @@ __pycache__/
 .tmp/
 credentials.json
 token.json
+md.md
 
 # Ignore all __init__.py files
 __init__.py
