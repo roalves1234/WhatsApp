@@ -15,15 +15,15 @@ class Controller:
         return Home.get()
 
     @staticmethod
-    async def enviar_resposta_assistant(fone: str, nome: str, texto_entrada: str) -> InteracaoAssistant:
+    async def enviar_resposta_assistant(fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
         """
         Orquestra o fluxo completo de resposta inteligente:
         1. Obtém a resposta da LLM via classe Agente (já instanciada no Controller)
         2. Envia a resposta ao remetente via Uzapi.enviar_texto
         """
 
-        # Consulta a LLM com o texto recebido pelo usuário usando a instância única
-        interacao_assistant = Controller._agente.obter_resposta(fone, nome, texto_entrada)
+        # Consulta a LLM com o contexto recebido pelo usuário usando a instância única
+        interacao_assistant = Controller._agente.obter_resposta(fone, nome, contexto_entrada)
 
         # Resposta da IA, incluindo o tempo de resposta e versão:
         texto_resposta = textwrap.dedent(f"""

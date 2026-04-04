@@ -80,8 +80,9 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
             mensagem=payload.message.text,
         )
         DaoInteracao.persistir(interacao_user)
-        
-        interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, payload.message.text)
+
+        contexto_entrada = DaoInteracao.get_by_fone(payload.chat.phone)
+        interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, contexto_entrada)
         DaoInteracao.persistir(interacao_assistant)
         
         return interacao_assistant

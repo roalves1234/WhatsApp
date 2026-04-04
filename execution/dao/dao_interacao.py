@@ -1,6 +1,5 @@
 from execution.dao.conexao import ConexaoMongo
 from execution.controller.classes import InteracaoBase
-import json
 
 
 class DaoInteracao:
@@ -15,7 +14,11 @@ class DaoInteracao:
 
     @classmethod
     def get_by_fone(cls, fone: str) -> list[dict]:
-        """Retorna lista de interações filtradas por fone, com origem e mensagem"""
+        """
+        Retorna lista de interações filtradas por fone, com origem e mensagem.
+
+        :param fone: Número de telefone para filtrar
+        """
         banco = ConexaoMongo.get_banco()
         registros = banco[cls._COLECAO].find({"fone": fone})
 
@@ -23,8 +26,5 @@ class DaoInteracao:
             {"origem": doc["origem"], "mensagem": doc["mensagem"]}
             for doc in registros
         ]
-
-        # Imprime em formato JSON legível
-        print(json.dumps(interacoes, ensure_ascii=False, indent=2))
 
         return interacoes

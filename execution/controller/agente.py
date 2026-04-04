@@ -1,10 +1,12 @@
 import time
+import json
 from datetime import datetime
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
 from execution.controller.const import LLM
 from execution.controller.classes import ConteudoResposta, InteracaoAssistant
+from execution.dao.dao_interacao import DaoInteracao
 
 
 # Schema JSON que define a estrutura de saída esperada da LLM
@@ -64,17 +66,20 @@ class Agente:
             markdown=False,
         )
 
-    def obter_resposta(self, fone: str, nome: str, texto_entrada: str) -> InteracaoAssistant:
+    def obter_resposta(self, fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
         """
-        Envia o texto para a LLM e retorna um objeto estruturado com métricas da resposta.
+        Envia o contexto para a LLM e retorna um objeto estruturado com métricas da resposta.
 
         :param fone: Número de telefone do remetente.
         :param nome: Nome exibido do remetente.
-        :param texto_entrada: O texto enviado pelo usuário.
+        :param contexto_entrada: Lista de dicionários com origem e mensagem para contexto da conversa.
         :return: InteracaoAssistant com conteudo (ConteudoResposta), tempo, tokens e métricas.
         """
+        # Formata o contexto como JSON para enviar à LLM
+        contexto_json = "Histórico de interações:\n" + json.dumps(contexto_entrada, ensure_ascii=False, indent=2)
+
         inicio: float = time.time()
-        resposta: RunOutput = self._agente.run(texto_entrada, output_schema=SCHEMA_SAIDA)
+        resposta: RunOutput = self._agente.run(contexto_json, output_schema=SCHEMA_SAIDA)
         duracao: float = time.time() - inicio
 
         conteudo = ConteudoResposta(**resposta.content)
