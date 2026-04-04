@@ -5,7 +5,9 @@
       "WebFetch(domain:deepwiki.com)",
       "WebFetch(domain:github.com)",
       "mcp__agno-docs__search_agno",
-      "mcp__agno-docs__get_page_agno"
+      "mcp__agno-docs__get_page_agno",
+      "Read(//d d:/Rodrigo/GitHub/**)",
+      "Bash(find . -name \"*.py\" -type f -exec grep -l \"\\\\.resposta\\\\.resposta\\\\|\\\\.resposta\\\\.raciocinio\\\\|\\\\.duration\\\\|\\\\.input_tokens\\\\|\\\\.output_tokens\\\\|\\\\.data_hora\" {} \\\\;)"
     ]
   }
 }

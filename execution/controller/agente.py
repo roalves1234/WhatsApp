@@ -3,8 +3,8 @@ from datetime import datetime
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
-from pydantic import BaseModel, Field
 from execution.controller.const import LLM
+from execution.controller.classes import ConteudoResposta, InteracaoAssistant
 
 
 # Schema JSON que define a estrutura de saída esperada da LLM
@@ -26,19 +26,6 @@ SCHEMA_SAIDA: dict = {
 }
 
 
-class ConteudoResposta(BaseModel):
-    contexto_entrada: str = Field(description="Resumo do que foi solicitado pelo usuário")
-    raciocinio: str = Field(description="Passo a passo utilizado para se chegar à resposta")
-    resposta: str = Field(description="A resposta final ao usuário")
-
-
-class Interacao(BaseModel):
-    entrada: str
-    resposta: ConteudoResposta
-    duration: str
-    input_tokens: int | None
-    output_tokens: int | None
-    data_hora: datetime
 
 
 class Agente:
@@ -77,22 +64,22 @@ class Agente:
             markdown=False,
         )
 
-    def obter_resposta(self, texto_entrada: str) -> Interacao:
+    def obter_resposta(self, texto_entrada: str) -> InteracaoAssistant:
         """
         Envia o texto para a LLM e retorna um objeto estruturado com métricas da resposta.
 
         :param texto_entrada: O texto enviado pelo usuário.
-        :return: Objeto com content (ConteudoResposta), time (segundos), input_tokens e output_tokens.
+        :return: InteracaoAssistant com conteudo (ConteudoResposta), tempo, tokens e métricas.
         """
         inicio: float = time.time()
         resposta: RunOutput = self._agente.run(texto_entrada, output_schema=SCHEMA_SAIDA)
         duracao: float = time.time() - inicio
 
-        return Interacao(
-            entrada=texto_entrada,
-            resposta=ConteudoResposta(**resposta.content),
-            duration=f"{duracao:.1f}s",
-            input_tokens=resposta.metrics.input_tokens,
-            output_tokens=resposta.metrics.output_tokens,
-            data_hora=datetime.now(),
+        conteudo = ConteudoResposta(**resposta.content)
+        return InteracaoAssistant(
+            mensagem=conteudo.resposta,
+            conteudo=conteudo,
+            duracao=f"{duracao:.1f}s",
+            tokens_entrada=resposta.metrics.input_tokens,
+            tokens_saida=resposta.metrics.output_tokens,
         )
