@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
@@ -34,9 +35,10 @@ class ConteudoResposta(BaseModel):
 class Interacao(BaseModel):
     entrada: str
     resposta: ConteudoResposta
-    time: str
+    duration: str
     input_tokens: int | None
     output_tokens: int | None
+    data_hora: datetime
 
 
 class Agente:
@@ -89,7 +91,8 @@ class Agente:
         return Interacao(
             entrada=texto_entrada,
             resposta=ConteudoResposta(**resposta.content),
-            time=f"{duracao:.1f}s",
+            duration=f"{duracao:.1f}s",
             input_tokens=resposta.metrics.input_tokens,
             output_tokens=resposta.metrics.output_tokens,
+            data_hora=datetime.now(),
         )

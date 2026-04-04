@@ -28,7 +28,7 @@ class Controller:
         texto_resposta = textwrap.dedent(f"""
                                         {resposta_ia.resposta.resposta}
                                         🧠 {resposta_ia.resposta.raciocinio}
-                                        ⏱ {resposta_ia.time}                                        
+                                        ⏱ {resposta_ia.duration}                                        
                                         🏷️ v{Version().get()}
                                         """).strip()
 
