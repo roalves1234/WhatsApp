@@ -48,6 +48,15 @@ async def read_root() -> str:
     return Controller.get_home()
 
 
+@app.get("/interacoes/{fone}")
+async def get_interacoes(fone: str) -> dict[str, Any]:
+    """
+    Retorna interações filtradas por número de fone.
+    """
+    interacoes = DaoInteracao.get_by_fone(fone)
+    return {"fone": fone, "interacoes": interacoes}
+
+
 def do_erro(mensagem: str) -> dict[str, Any]:
     print(">>> ERRO: " + mensagem)
     return {"detail": mensagem}
@@ -70,9 +79,11 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
             nome=payload.message.senderName,
             mensagem=payload.message.text,
         )
-        DaoInteracao.gravar(interacao_user)
+        DaoInteracao.persistir(interacao_user)
+        
         interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, payload.message.text)
-        DaoInteracao.gravar(interacao_assistant)
+        DaoInteracao.persistir(interacao_assistant)
+        
         return interacao_assistant
     else:
         return do_erro("Número de telefone não autorizado ou não é texto")
