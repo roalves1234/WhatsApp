@@ -31,7 +31,7 @@ class ConteudoResposta(BaseModel):
     resposta: str = Field(description="A resposta final ao usuário")
 
 
-class RespostaIA(BaseModel):
+class Interacao(BaseModel):
     entrada: str
     resposta: ConteudoResposta
     time: str
@@ -75,7 +75,7 @@ class Agente:
             markdown=False,
         )
 
-    def obter_resposta(self, texto_entrada: str) -> RespostaIA:
+    def obter_resposta(self, texto_entrada: str) -> Interacao:
         """
         Envia o texto para a LLM e retorna um objeto estruturado com métricas da resposta.
 
@@ -86,7 +86,7 @@ class Agente:
         resposta: RunOutput = self._agente.run(texto_entrada, output_schema=SCHEMA_SAIDA)
         duracao: float = time.time() - inicio
 
-        return RespostaIA(
+        return Interacao(
             entrada=texto_entrada,
             resposta=ConteudoResposta(**resposta.content),
             time=f"{duracao:.1f}s",
