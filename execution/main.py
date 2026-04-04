@@ -10,7 +10,7 @@ from datetime import datetime
 load_dotenv()
 
 from execution.controller.controller import Controller
-from execution.controller.classes import InteracaoAssistant
+from execution.controller.classes import InteracaoAssistant, InteracaoUser
 from execution.models.webhook import RecebimentoPayload
 
 app = FastAPI(
@@ -64,6 +64,12 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
         and payload.message is not None
         and payload.message.type == "text"
     ):
-        return await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, payload.message.text)
+        interacao_user = InteracaoUser(
+            fone=payload.chat.phone,
+            nome=payload.message.senderName,
+            mensagem=payload.message.text,
+        )
+        interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, payload.message.text)
+        return interacao_assistant
     else:
         return do_erro("Número de telefone não autorizado ou não é texto")
