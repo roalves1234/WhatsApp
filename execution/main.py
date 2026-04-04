@@ -74,17 +74,24 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
         and payload.message is not None
         and payload.message.type == "text"
     ):
+        mensagem = payload.message.text
+
+        # Verifica se a mensagem é "reiniciar"
+        if mensagem.strip().lower() == "reiniciar":
+            DaoInteracao.delete_by_fone(payload.chat.phone)
+            mensagem = "Olá"
+
         interacao_user = InteracaoUser(
             fone=payload.chat.phone,
             nome=payload.message.senderName,
-            mensagem=payload.message.text,
+            mensagem=mensagem,
         )
         DaoInteracao.persistir(interacao_user)
 
         contexto_entrada = DaoInteracao.get_by_fone(payload.chat.phone)
         interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, contexto_entrada)
         DaoInteracao.persistir(interacao_assistant)
-        
+
         return interacao_assistant
     else:
         return do_erro("Número de telefone não autorizado ou não é texto")

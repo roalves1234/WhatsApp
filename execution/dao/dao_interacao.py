@@ -28,3 +28,13 @@ class DaoInteracao:
         ]
 
         return interacoes
+
+    @classmethod
+    def delete_by_fone(cls, fone: str) -> None:
+        """
+        Deleta todos os registros de um número de telefone.
+
+        :param fone: Número de telefone para deletar
+        """
+        banco = ConexaoMongo.get_banco()
+        banco[cls._COLECAO].delete_many({"fone": fone})
