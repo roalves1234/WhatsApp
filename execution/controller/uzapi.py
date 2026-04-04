@@ -16,13 +16,15 @@ class Uzapi:
         Marca o chat como lido no WhatsApp (duplo check azul).
         Utiliza o endpoint /chat/read da Uazapi.
         """
-        numero_formatado = f"{numero}@s.whatsapp.net"
+        # Remove espaços e símbolos, deixando apenas dígitos
+        numero_puro = ''.join(filter(str.isdigit, numero))
+        numero_com_sufixo = f"{numero_puro}@s.whatsapp.net"
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{UzapiConfig.URL}/chat/read",
                 json={
-                    "number": numero_formatado,
+                    "number": numero_com_sufixo,
                     "read": True,
                 },
                 headers={
@@ -45,7 +47,7 @@ class Uzapi:
         """
         # Marca a mensagem como visualizada antes de começar a digitar
         await Uzapi.marcar_como_lida(numero)
-
+    
         duracao_ms = min(max(len(texto) * 30, 2000), 4000)
 
         async with httpx.AsyncClient() as client:
