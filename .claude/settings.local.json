@@ -3,7 +3,9 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:deepwiki.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__agno-docs__search_agno",
+      "mcp__agno-docs__get_page_agno"
     ]
   }
 }

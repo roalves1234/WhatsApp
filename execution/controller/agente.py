@@ -2,15 +2,41 @@ import time
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from execution.controller.const import LLM
 
 
+# Schema JSON que define a estrutura de saída esperada da LLM
+SCHEMA_SAIDA: dict = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "RespostaEstruturada",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "entrada":    {"type": "string", "description": "Resumo do que foi solicitado pelo usuário"},
+                "raciocinio": {"type": "string", "description": "Passo a passo utilizado para se chegar à resposta"},
+                "resposta":   {"type": "string", "description": "A resposta final ao usuário"},
+            },
+            "required": ["entrada", "raciocinio", "resposta"],
+            "additionalProperties": False,
+        },
+    },
+}
+
+
+class ConteudoResposta(BaseModel):
+    entrada: str = Field(description="Resumo do que foi solicitado pelo usuário")
+    raciocinio: str = Field(description="Passo a passo utilizado para se chegar à resposta")
+    resposta: str = Field(description="A resposta final ao usuário")
+
+
 class RespostaIA(BaseModel):
-    content: str
+    content: ConteudoResposta
     time: str
     input_tokens: int | None
     output_tokens: int | None
+
 
 class Agente:
     """
@@ -40,24 +66,27 @@ class Agente:
             instructions=[
                 "Você é um assistente virtual integrado ao WhatsApp.",
                 "Responda de forma concisa e amigável.",
-                "Sempre utilize formatação Markdown quando apropriado."
+                "Sempre retorne sua resposta no formato JSON definido, preenchendo os campos:",
+                "  - entrada: um resumo do que foi solicitado pelo usuário",
+                "  - raciocinio: o passo a passo utilizado para se chegar à resposta",
+                "  - resposta: a resposta final ao usuário",
             ],
-            markdown=True
+            markdown=False,
         )
 
     def obter_resposta(self, texto_entrada: str) -> RespostaIA:
         """
-        Envia o texto para a LLM e retorna um objeto com métricas da resposta.
+        Envia o texto para a LLM e retorna um objeto estruturado com métricas da resposta.
 
         :param texto_entrada: O texto enviado pelo usuário.
-        :return: Objeto com content, time (segundos), input_tokens e output_tokens..
+        :return: Objeto com content (ConteudoResposta), time (segundos), input_tokens e output_tokens.
         """
         inicio: float = time.time()
-        resposta: RunOutput = self._agente.run(texto_entrada)
+        resposta: RunOutput = self._agente.run(texto_entrada, output_schema=SCHEMA_SAIDA)
         duracao: float = time.time() - inicio
 
         return RespostaIA(
-            content=resposta.content,
+            content=ConteudoResposta(**resposta.content),
             time=f"{duracao:.1f}s",
             input_tokens=resposta.metrics.input_tokens,
             output_tokens=resposta.metrics.output_tokens,
