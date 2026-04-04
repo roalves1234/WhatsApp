@@ -28,7 +28,7 @@ class Controller:
         resposta_ia = Controller._agente.obter_resposta(texto)
 
         # Simula digitação proporcional ao tamanho da resposta (mín. 2s, máx. 8s)
-        await Controller.enviar_digitando(numero, resposta_ia.content)
+        await Controller.enviar_digitando(numero, resposta_ia.content.resposta)
 
         # Encaminha a resposta da IA para o número de origem, incluindo o tempo de resposta
         texto_resposta = f"{resposta_ia.content}\n⏱ {resposta_ia.time}\n🏷️ v{Version().get()}"
