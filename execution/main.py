@@ -12,6 +12,7 @@ load_dotenv()
 from execution.controller.controller import Controller
 from execution.controller.classes import InteracaoAssistant, InteracaoUser
 from execution.models.webhook import RecebimentoPayload
+from execution.dao.dao_interacao import DaoInteracao
 
 app = FastAPI(
     title="WhatsApp Project Application",
@@ -69,7 +70,9 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
             nome=payload.message.senderName,
             mensagem=payload.message.text,
         )
+        DaoInteracao.gravar(interacao_user)
         interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, payload.message.text)
+        DaoInteracao.gravar(interacao_assistant)
         return interacao_assistant
     else:
         return do_erro("Número de telefone não autorizado ou não é texto")
