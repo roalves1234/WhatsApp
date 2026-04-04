@@ -12,7 +12,9 @@ class ConteudoResposta(BaseModel):
 class InteracaoBase(BaseModel):
     """Classe base para interações, com campos comuns"""
     origem: str  # "user" | "assistant" | "owner"
-    criado_em: datetime = Field(default_factory=datetime.now)
+    fone: str
+    nome: str
+    data_hora: datetime = Field(default_factory=datetime.now)
     mensagem: str
 
 

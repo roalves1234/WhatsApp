@@ -64,10 +64,12 @@ class Agente:
             markdown=False,
         )
 
-    def obter_resposta(self, texto_entrada: str) -> InteracaoAssistant:
+    def obter_resposta(self, fone: str, nome: str, texto_entrada: str) -> InteracaoAssistant:
         """
         Envia o texto para a LLM e retorna um objeto estruturado com métricas da resposta.
 
+        :param fone: Número de telefone do remetente.
+        :param nome: Nome exibido do remetente.
         :param texto_entrada: O texto enviado pelo usuário.
         :return: InteracaoAssistant com conteudo (ConteudoResposta), tempo, tokens e métricas.
         """
@@ -77,6 +79,8 @@ class Agente:
 
         conteudo = ConteudoResposta(**resposta.content)
         return InteracaoAssistant(
+            fone=fone,
+            nome=nome,
             mensagem=conteudo.resposta,
             conteudo=conteudo,
             duracao=f"{duracao:.1f}s",

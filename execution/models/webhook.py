@@ -9,6 +9,7 @@ class RecebimentoChatPayload(BaseModel):
 class RecebimentoMessagePayload(BaseModel):
     type: str
     text: str
+    senderName: str = ""
 
 
 class RecebimentoPayload(BaseModel):

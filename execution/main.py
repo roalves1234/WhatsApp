@@ -63,6 +63,6 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
         and payload.message is not None
         and payload.message.type == "text"
     ):
-        return await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.text)
+        return await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, payload.message.text)
     else:
         return do_erro("Número de telefone não autorizado ou não é texto")
