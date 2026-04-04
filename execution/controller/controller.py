@@ -26,8 +26,8 @@ class Controller:
 
         # Resposta da IA, incluindo o tempo de resposta e versão:
         texto_resposta = textwrap.dedent(f"""
-                                        {resposta_ia.content.resposta}
-                                        🧠 {resposta_ia.content.raciocinio}
+                                        {resposta_ia.resposta.resposta}
+                                        🧠 {resposta_ia.resposta.raciocinio}
                                         ⏱ {resposta_ia.time}                                        
                                         🏷️ v{Version().get()}
                                         """).strip()

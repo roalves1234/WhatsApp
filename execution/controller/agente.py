@@ -14,11 +14,11 @@ SCHEMA_SAIDA: dict = {
         "schema": {
             "type": "object",
             "properties": {
-                "entrada":    {"type": "string", "description": "Resumo do que foi solicitado pelo usuário"},
+                "contexto_entrada": {"type": "string", "description": "Resumo do que foi solicitado pelo usuário"},
                 "raciocinio": {"type": "string", "description": "Passo a passo utilizado para se chegar à resposta"},
                 "resposta":   {"type": "string", "description": "A resposta final ao usuário"},
             },
-            "required": ["entrada", "raciocinio", "resposta"],
+            "required": ["contexto_entrada", "raciocinio", "resposta"],
             "additionalProperties": False,
         },
     },
@@ -26,13 +26,14 @@ SCHEMA_SAIDA: dict = {
 
 
 class ConteudoResposta(BaseModel):
-    entrada: str = Field(description="Resumo do que foi solicitado pelo usuário")
+    contexto_entrada: str = Field(description="Resumo do que foi solicitado pelo usuário")
     raciocinio: str = Field(description="Passo a passo utilizado para se chegar à resposta")
     resposta: str = Field(description="A resposta final ao usuário")
 
 
 class RespostaIA(BaseModel):
-    content: ConteudoResposta
+    entrada: str
+    resposta: ConteudoResposta
     time: str
     input_tokens: int | None
     output_tokens: int | None
@@ -67,7 +68,7 @@ class Agente:
                 "Você é um assistente virtual integrado ao WhatsApp.",
                 "Responda de forma concisa e amigável.",
                 "Sempre retorne sua resposta no formato JSON definido, preenchendo os campos:",
-                "  - entrada: um resumo do que foi solicitado pelo usuário",
+                "  - contexto_entrada: um resumo do que foi solicitado pelo usuário",
                 "  - raciocinio: o passo a passo utilizado para se chegar à resposta",
                 "  - resposta: a resposta final ao usuário",
             ],
@@ -86,7 +87,8 @@ class Agente:
         duracao: float = time.time() - inicio
 
         return RespostaIA(
-            content=ConteudoResposta(**resposta.content),
+            entrada=texto_entrada,
+            resposta=ConteudoResposta(**resposta.content),
             time=f"{duracao:.1f}s",
             input_tokens=resposta.metrics.input_tokens,
             output_tokens=resposta.metrics.output_tokens,
