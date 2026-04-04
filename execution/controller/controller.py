@@ -33,10 +33,9 @@ class Controller:
                                         🏷️ v{Version().get()}
                                         """).strip()
 
-        # Simula digitação proporcional ao tamanho da resposta (mín. 2s, máx. 8s)
+        # Envia para WhatsApp
         await Uzapi.enviar_digitando(numero, texto_resposta)
-
-        # Envia a resposta para o WhatsApp
         await Uzapi.enviar_texto(numero, texto_resposta)
 
+        # Retorno
         return interacao_assistant
