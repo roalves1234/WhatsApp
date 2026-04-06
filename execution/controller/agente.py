@@ -76,10 +76,10 @@ class Agente:
         :return: InteracaoAssistant com conteudo (ConteudoResposta), tempo, tokens e métricas.
         """
         # Formata o contexto como JSON para enviar à LLM
-        contexto_json = "Histórico de interações:\n" + json.dumps(contexto_entrada, ensure_ascii=False, indent=2)
+        contexto_entrada_json = "Histórico de interações:\n" + json.dumps(contexto_entrada, ensure_ascii=False, indent=2)
 
         inicio: float = time.time()
-        resposta: RunOutput = self._agente.run(contexto_json, output_schema=SCHEMA_SAIDA)
+        resposta: RunOutput = self._agente.run(contexto_entrada_json, output_schema=SCHEMA_SAIDA)
         duracao: float = time.time() - inicio
 
         conteudo = ConteudoResposta(**resposta.content)

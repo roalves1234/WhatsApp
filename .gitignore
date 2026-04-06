@@ -11,6 +11,7 @@ __pycache__/
 credentials.json
 token.json
 md.md
+error.txt
 
 # Ignore all __init__.py files
 __init__.py
