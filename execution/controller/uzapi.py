@@ -20,7 +20,7 @@ class Uzapi:
         numero_puro = ''.join(filter(str.isdigit, numero))
         numero_com_sufixo = f"{numero_puro}@s.whatsapp.net"
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 f"{UzapiConfig.URL}/chat/read",
                 json={
@@ -47,10 +47,10 @@ class Uzapi:
         """
         # Marca a mensagem como visualizada antes de começar a digitar
         await Uzapi.marcar_como_lida(numero)
-    
+
         duracao_ms = min(max(len(texto) * 30, 2000), 4000)
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 f"{UzapiConfig.URL}/message/presence",
                 json={
@@ -82,7 +82,7 @@ class Uzapi:
             text=texto,
         )
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 f"{UzapiConfig.URL}/send/text",
                 json=envio_payload.model_dump(),
