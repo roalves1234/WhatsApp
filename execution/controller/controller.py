@@ -5,6 +5,7 @@ from execution.controller.classes import InteracaoUser, InteracaoAssistant
 from execution.controller.home import Home
 from execution.controller.uzapi import Uzapi
 from execution.controller.version import Version
+from execution.dao.dao_interacao import DaoInteracao
 
 
 class Controller:
@@ -13,6 +14,13 @@ class Controller:
     @staticmethod
     def get_home() -> str:
         return Home.get()
+
+    @staticmethod
+    def eliminar_historico(fone: str) -> None:
+        """
+        Apaga o histórico do fone.
+        """
+        DaoInteracao.delete_by_fone(fone)
 
     @staticmethod
     async def enviar_resposta_assistant(fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:

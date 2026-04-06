@@ -76,9 +76,8 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
     ):
         mensagem = payload.message.text
 
-        # Verifica se a mensagem é "reiniciar"
         if mensagem.strip().lower() == "reiniciar":
-            DaoInteracao.delete_by_fone(payload.chat.phone)
+            Controller.eliminar_historico(payload.chat.phone)
             mensagem = "Olá"
 
         interacao_user = InteracaoUser(
