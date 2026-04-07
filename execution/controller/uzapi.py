@@ -3,6 +3,7 @@ import inspect
 from typing import Any
 
 import httpx
+from loguru import logger
 
 from execution.models.webhook import EnvioPayload
 from execution.controller.const import UzapiConfig
@@ -35,7 +36,9 @@ class Uzapi:
             )
 
         if response.status_code >= 400:
-            raise Exception(f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            erro = f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}"
+            logger.error("UZAPI | marcar_como_lida | status={status} | numero={numero} | resposta={resp}", status=response.status_code, numero=numero, resp=response.text)
+            raise Exception(erro)
 
     @staticmethod
     async def enviar_digitando(numero: str, texto: str) -> None:
@@ -66,7 +69,9 @@ class Uzapi:
             )
 
         if response.status_code >= 400:
-            raise Exception(f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            erro = f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}"
+            logger.error("UZAPI | enviar_digitando | status={status} | numero={numero} | resposta={resp}", status=response.status_code, numero=numero, resp=response.text)
+            raise Exception(erro)
 
         # Aguarda o tempo de digitação antes de prosseguir
         await asyncio.sleep(duracao_ms / 1000)
@@ -75,7 +80,6 @@ class Uzapi:
     async def enviar_texto(numero: str, texto: str) -> dict[str, Any]:
         """
         Envia um texto para um número de telefone via uazapi.
-        Imprime erro no console se o status code for >= 400.
         """
         envio_payload = EnvioPayload(
             number=numero,
@@ -94,6 +98,9 @@ class Uzapi:
             )
 
         if response.status_code >= 400:
-            raise Exception(f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            erro = f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}"
+            logger.error("UZAPI | enviar_texto | status={status} | numero={numero} | resposta={resp}", status=response.status_code, numero=numero, resp=response.text)
+            raise Exception(erro)
 
+        logger.debug("UZAPI | Mensagem enviada | numero={numero}", numero=numero)
         return response.json()

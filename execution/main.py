@@ -1,11 +1,13 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import execution.logger  # noqa: F401 — configura os handlers do loguru
+
 from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
-from datetime import datetime
+from loguru import logger
 from execution.controller.controller import Controller
 from execution.controller.classes import InteracaoAssistant
 from execution.models.webhook import RecebimentoPayload
@@ -20,15 +22,14 @@ app = FastAPI(
 # Handler global para erros de validação (ex: payload fora do formato esperado)
 @app.exception_handler(RequestValidationError)
 async def handler_erro_validacao(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """Captura erros de validação do Pydantic e imprime detalhes no terminal."""
+    """Captura erros de validação do Pydantic e registra detalhes no log."""
     body = await request.body()
-    print(f"""
-          {'=' * 60}
-          >>> ERRO DE VALIDAÇÃO em {request.url.path}
-          >>> Detalhes do erro: {exc.errors()}
-          >>> Body recebido: {body.decode('utf-8', errors='replace')}
-          {'=' * 60}
-          """)
+    logger.warning(
+        "VALIDAÇÃO | path={path} | erros={erros} | body={body}",
+        path=request.url.path,
+        erros=exc.errors(),
+        body=body.decode("utf-8", errors="replace"),
+    )
     return JSONResponse(
         status_code=422,
         content={"detail": exc.errors()},
@@ -49,15 +50,17 @@ async def get_interacoes(fone: str) -> dict[str, Any]:
     """
     Retorna interações filtradas por número de fone.
     """
-    interacoes = await DaoInteracao.get_by_fone(fone)
+    interacoes = await Controller.get_lista_interacao_by_fone(fone)
     return {"fone": fone, "interacoes": interacoes}
+
 
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> InteracaoAssistant | dict[str, Any]:
-    body = await request.body()
-    print(f"\n\n")
-    print(f">>> DATA/HORA: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-    print(f">>> NÚMERO: {payload.chat.phone if payload.chat else 'N/A'} | NOME: {payload.message.senderName if payload.message else 'N/A'} | MENSAGEM: {payload.message.text if payload.message else 'N/A'}")
+    fone = payload.chat.phone if payload.chat else "N/A"
+    nome = payload.message.senderName if payload.message else "N/A"
+    mensagem = payload.message.text if payload.message else "N/A"
+
+    logger.info("WEBHOOK | fone={fone} | nome={nome} | mensagem={mensagem}", fone=fone, nome=nome, mensagem=mensagem)
 
     if (
         payload.chat is not None
@@ -71,9 +74,18 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
             await Controller.eliminar_historico(payload.chat.phone)
             mensagem = "Olá"
 
-        interacao_user = await Controller.salvarInteracaoUser(payload.chat.phone, payload.message.senderName, mensagem)
-        interacao_assistant = await Controller.doInteracaoAssistant(payload.chat.phone, payload.message.senderName)
-
-        return interacao_assistant
+        try:
+            await Controller.salvarInteracaoUser(payload.chat.phone, payload.message.senderName, mensagem)
+            interacao_assistant = await Controller.doInteracaoAssistant(payload.chat.phone, payload.message.senderName)
+            return interacao_assistant
+        except Exception:
+            logger.exception(
+                "WEBHOOK | Erro ao processar mensagem | fone={fone} | nome={nome} | mensagem={mensagem}",
+                fone=fone,
+                nome=nome,
+                mensagem=mensagem,
+            )
+            return JSONResponse(status_code=500, content={"detail": "Erro interno ao processar mensagem."})
     else:
+        logger.debug("WEBHOOK | Número rejeitado | fone={fone}", fone=fone)
         return {"detail": "Número rejeitado"}

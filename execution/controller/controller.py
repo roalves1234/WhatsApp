@@ -1,5 +1,7 @@
 import textwrap
 
+from loguru import logger
+
 from execution.controller.agente import Agente
 from execution.controller.classes import InteracaoUser, InteracaoAssistant
 from execution.controller.home import Home
@@ -21,6 +23,11 @@ class Controller:
         Apaga o histórico do fone.
         """
         await DaoInteracao.delete_by_fone(fone)
+        logger.info("HISTÓRICO | Eliminado | fone={fone}", fone=fone)
+
+    @staticmethod
+    async def get_lista_interacao_by_fone(fone: str) -> list[dict]:
+        return await DaoInteracao.get_by_fone(fone)
 
     @staticmethod
     async def salvarInteracaoUser(fone: str, nome: str, mensagem: str) -> InteracaoUser:
@@ -30,6 +37,7 @@ class Controller:
         """
         interacao_user = InteracaoUser(fone=fone, nome=nome, mensagem=mensagem)
         await DaoInteracao.persistir(interacao_user)
+        logger.debug("INTERAÇÃO USER | Persistida | fone={fone} | nome={nome}", fone=fone, nome=nome)
         return interacao_user
 
     @staticmethod
@@ -44,6 +52,7 @@ class Controller:
         contexto_entrada = await DaoInteracao.get_by_fone(fone)
         interacao_assistant = await Controller.enviar_resposta_assistant(fone, nome, contexto_entrada)
         await DaoInteracao.persistir(interacao_assistant)
+        logger.debug("INTERAÇÃO ASSISTANT | Persistida | fone={fone}", fone=fone)
         return interacao_assistant
 
     @staticmethod
@@ -69,5 +78,12 @@ class Controller:
         await Uzapi.enviar_digitando(fone, texto_resposta)
         await Uzapi.enviar_texto(fone, texto_resposta)
 
-        # Retorno
+        logger.info(
+            "RESPOSTA | fone={fone} | duração={duracao} | tokens_entrada={tin} | tokens_saida={tout}",
+            fone=fone,
+            duracao=interacao_assistant.duracao,
+            tin=interacao_assistant.tokens_entrada,
+            tout=interacao_assistant.tokens_saida,
+        )
+
         return interacao_assistant

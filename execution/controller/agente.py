@@ -2,6 +2,7 @@ import asyncio
 import time
 import json
 from datetime import datetime
+from loguru import logger
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
@@ -66,6 +67,7 @@ class Agente:
             ],
             markdown=False,
         )
+        logger.info("AGENTE | Inicializado | modelo={modelo}", modelo=LLM.MODELO_ID)
 
     async def obter_resposta(self, fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
         """
@@ -79,10 +81,33 @@ class Agente:
         # Formata o contexto como JSON para enviar à LLM
         contexto_entrada_json = "Histórico de interações:\n" + json.dumps(contexto_entrada, ensure_ascii=False, indent=2)
 
+        logger.debug(
+            "LLM | Chamada iniciada | fone={fone} | mensagens_no_contexto={qtd}",
+            fone=fone,
+            qtd=len(contexto_entrada),
+        )
+
         inicio: float = time.time()
-        # Executa em thread separada para não bloquear o event loop durante a chamada à OpenAI
-        resposta: RunOutput = await asyncio.to_thread(self._agente.run, contexto_entrada_json, output_schema=SCHEMA_SAIDA)
+        try:
+            # Executa em thread separada para não bloquear o event loop durante a chamada à OpenAI
+            resposta: RunOutput = await asyncio.to_thread(self._agente.run, contexto_entrada_json, output_schema=SCHEMA_SAIDA)
+        except Exception:
+            logger.exception(
+                "LLM | Erro na chamada | fone={fone} | contexto={ctx}",
+                fone=fone,
+                ctx=contexto_entrada,
+            )
+            raise
+
         duracao: float = time.time() - inicio
+
+        logger.debug(
+            "LLM | Resposta recebida | fone={fone} | duração={duracao:.1f}s | tokens_entrada={tin} | tokens_saida={tout}",
+            fone=fone,
+            duracao=duracao,
+            tin=resposta.metrics.input_tokens,
+            tout=resposta.metrics.output_tokens,
+        )
 
         conteudo = ConteudoResposta(**resposta.content)
         return InteracaoAssistant(

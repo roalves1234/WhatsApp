@@ -1,5 +1,7 @@
 import asyncio
 
+from loguru import logger
+
 from execution.dao.conexao import ConexaoMongo
 from execution.controller.classes import InteracaoBase
 
@@ -11,8 +13,12 @@ class DaoInteracao:
     @classmethod
     async def persistir(cls, interacao: InteracaoBase) -> None:
         """Grava uma interação no MongoDB sem bloquear o event loop"""
-        banco = ConexaoMongo.get_banco()
-        await asyncio.to_thread(banco[cls._COLECAO].insert_one, interacao.model_dump(mode="json"))
+        try:
+            banco = ConexaoMongo.get_banco()
+            await asyncio.to_thread(banco[cls._COLECAO].insert_one, interacao.model_dump(mode="json"))
+        except Exception:
+            logger.exception("DAO | Erro ao persistir | origem={origem} | fone={fone}", origem=interacao.origem, fone=interacao.fone)
+            raise
 
     @classmethod
     async def get_by_fone(cls, fone: str) -> list[dict]:
@@ -22,10 +28,14 @@ class DaoInteracao:
 
         :param fone: Número de telefone para filtrar
         """
-        banco = ConexaoMongo.get_banco()
-        registros = await asyncio.to_thread(
-            lambda: list(banco[cls._COLECAO].find({"fone": fone}))
-        )
+        try:
+            banco = ConexaoMongo.get_banco()
+            registros = await asyncio.to_thread(
+                lambda: list(banco[cls._COLECAO].find({"fone": fone}))
+            )
+        except Exception:
+            logger.exception("DAO | Erro ao buscar interações | fone={fone}", fone=fone)
+            raise
 
         interacoes = [
             {"origem": doc["origem"], "mensagem": doc["mensagem"]}
@@ -41,5 +51,9 @@ class DaoInteracao:
 
         :param fone: Número de telefone para deletar
         """
-        banco = ConexaoMongo.get_banco()
-        await asyncio.to_thread(banco[cls._COLECAO].delete_many, {"fone": fone})
+        try:
+            banco = ConexaoMongo.get_banco()
+            await asyncio.to_thread(banco[cls._COLECAO].delete_many, {"fone": fone})
+        except Exception:
+            logger.exception("DAO | Erro ao deletar interações | fone={fone}", fone=fone)
+            raise
