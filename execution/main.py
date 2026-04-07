@@ -1,18 +1,14 @@
-from typing import Any
 from dotenv import load_dotenv
+load_dotenv()
+
+from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from datetime import datetime
-
-
-# Carrega as variáveis de ambiente do arquivo .env antes de qualquer inicialização
-load_dotenv()
-
 from execution.controller.controller import Controller
-from execution.controller.classes import InteracaoAssistant, InteracaoUser
+from execution.controller.classes import InteracaoAssistant
 from execution.models.webhook import RecebimentoPayload
-from execution.dao.dao_interacao import DaoInteracao
 
 app = FastAPI(
     title="WhatsApp Project Application",
@@ -80,16 +76,8 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
             await Controller.eliminar_historico(payload.chat.phone)
             mensagem = "Olá"
 
-        interacao_user = InteracaoUser(
-            fone=payload.chat.phone,
-            nome=payload.message.senderName,
-            mensagem=mensagem,
-        )
-        await DaoInteracao.persistir(interacao_user)
-
-        contexto_entrada = await DaoInteracao.get_by_fone(payload.chat.phone)
-        interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, contexto_entrada)
-        await DaoInteracao.persistir(interacao_assistant)
+        interacao_user = await Controller.salvarInteracaoUser(payload.chat.phone, payload.message.senderName, mensagem)
+        interacao_assistant = await Controller.doInteracaoAssistant(payload.chat.phone, payload.message.senderName)
 
         return interacao_assistant
     else:

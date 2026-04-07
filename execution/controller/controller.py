@@ -23,6 +23,30 @@ class Controller:
         await DaoInteracao.delete_by_fone(fone)
 
     @staticmethod
+    async def salvarInteracaoUser(fone: str, nome: str, mensagem: str) -> InteracaoUser:
+        """
+        Cria e persiste uma interação do usuário no banco de dados.
+        Retorna o objeto InteracaoUser persistido.
+        """
+        interacao_user = InteracaoUser(fone=fone, nome=nome, mensagem=mensagem)
+        await DaoInteracao.persistir(interacao_user)
+        return interacao_user
+
+    @staticmethod
+    async def doInteracaoAssistant(fone: str, nome: str) -> InteracaoAssistant:
+        """
+        Orquestra o fluxo completo de interação do assistente:
+        1. Busca o histórico de interações do fone
+        2. Obtém resposta da LLM via enviar_resposta_assistant
+        3. Persiste a interação do assistente no banco de dados
+        Retorna o objeto InteracaoAssistant persistido.
+        """
+        contexto_entrada = await DaoInteracao.get_by_fone(fone)
+        interacao_assistant = await Controller.enviar_resposta_assistant(fone, nome, contexto_entrada)
+        await DaoInteracao.persistir(interacao_assistant)
+        return interacao_assistant
+
+    @staticmethod
     async def enviar_resposta_assistant(fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
         """
         Orquestra o fluxo completo de resposta inteligente:
