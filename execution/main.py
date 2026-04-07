@@ -57,7 +57,7 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
     body = await request.body()
     print(f"\n\n")
     print(f">>> DATA/HORA: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-    print(f">>> PAYLOAD: " + body.decode('utf-8', errors='replace'))
+    print(f">>> NÚMERO: {payload.chat.phone if payload.chat else 'N/A'} | NOME: {payload.message.senderName if payload.message else 'N/A'} | MENSAGEM: {payload.message.text if payload.message else 'N/A'}")
 
     if (
         payload.chat is not None
