@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logs</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #f8fafc;
+      letter-spacing: 0.5px;
+    }
+
+    /* Formulário de filtros */
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      background: #1e2130;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid #2d3148;
+    }
+
+    .filtro-grupo {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filtro-grupo label {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .filtro-grupo input,
+    .filtro-grupo select {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .filtro-grupo input:focus,
+    .filtro-grupo select:focus {
+      border-color: #6366f1;
+    }
+
+    .filtro-grupo select option { background: #1e2130; }
+
+    .btn-filtrar {
+      align-self: flex-end;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-filtrar:hover { background: #4f46e5; }
+
+    /* Contador */
+    .contador {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    /* Wrapper com scroll */
+    .tabela-wrapper {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid #2d3148;
+      max-height: calc(100vh - 240px);
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #1e2130;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.6px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #2d3148;
+      text-align: left;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    thead th:hover { color: #e2e8f0; }
+    thead th.sorted-asc::after  { content: " ▲"; font-size: 0.65rem; }
+    thead th.sorted-desc::after { content: " ▼"; font-size: 0.65rem; }
+
+    tbody tr {
+      border-bottom: 1px solid #1a1d2e;
+      transition: background 0.1s;
+    }
+    tbody tr:hover { background: #1e2130; }
+
+    td { padding: 8px 14px; vertical-align: top; }
+
+    .col-data  { white-space: nowrap; color: #64748b; width: 160px; }
+    .col-nivel { width: 110px; }
+    .col-local { color: #7dd3fc; font-family: monospace; font-size: 0.78rem; width: 220px; word-break: break-all; }
+    .col-msg   { color: #cbd5e1; word-break: break-word; font-family: monospace; font-size: 0.78rem; }
+
+    /* Badges de nível */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .badge-debug    { background: #1e3a5f; color: #7dd3fc; }
+    .badge-info     { background: #14532d; color: #86efac; }
+    .badge-warning  { background: #713f12; color: #fde68a; }
+    .badge-error    { background: #7f1d1d; color: #fca5a5; }
+    .badge-critical { background: #4c0519; color: #f9a8d4; }
+
+    /* Destaque de linha por nível */
+    tr.nivel-error    td.col-msg { color: #fca5a5; }
+    tr.nivel-critical td.col-msg { color: #f9a8d4; }
+    tr.nivel-warning  td.col-msg { color: #fde68a; }
+
+    .vazio {
+      text-align: center;
+      padding: 40px;
+      color: #475569;
+      font-style: italic;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f1117; }
+    ::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+  </style>
+</head>
+<body>
+
+  <h1>Logs da aplicação</h1>
+
+  <form class="filtros" method="get" action="/logs">
+    <div class="filtro-grupo">
+      <label>Data</label>
+      <input type="date" name="data" value="{{DATA}}" />
+    </div>
+    <div class="filtro-grupo">
+      <label>Nível</label>
+      <select name="nivel">
+        <option value="">Todos</option>
+        <option value="DEBUG"    {{SEL_DEBUG}}>DEBUG</option>
+        <option value="INFO"     {{SEL_INFO}}>INFO</option>
+        <option value="WARNING"  {{SEL_WARNING}}>WARNING</option>
+        <option value="ERROR"    {{SEL_ERROR}}>ERROR</option>
+        <option value="CRITICAL" {{SEL_CRITICAL}}>CRITICAL</option>
+      </select>
+    </div>
+    <div class="filtro-grupo">
+      <label>Fone</label>
+      <input type="text" name="fone" value="{{FONE}}" placeholder="ex: 5566960008819" style="width:180px" />
+    </div>
+    <div class="filtro-grupo">
+      <label>Quantidade</label>
+      <input type="number" name="quantidade" value="{{QUANTIDADE}}" min="1" max="5000" style="width:90px" />
+    </div>
+    <button type="submit" class="btn-filtrar">Filtrar</button>
+  </form>
+
+  <div class="contador">{{TOTAL}} registro(s) encontrado(s)</div>
+
+  <div class="tabela-wrapper">
+    <table id="tabela-logs">
+      <thead>
+        <tr>
+          <th onclick="ordenar(0)">Data / Hora</th>
+          <th onclick="ordenar(1)">Nível</th>
+          <th onclick="ordenar(2)">Local</th>
+          <th onclick="ordenar(3)">Mensagem</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{LINHAS}}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Ordenação client-side por coluna
+    let colunaAtual = -1;
+    let ordemAsc = true;
+
+    function ordenar(coluna) {
+      const tabela = document.getElementById("tabela-logs");
+      const tbody = tabela.querySelector("tbody");
+      const linhas = Array.from(tbody.querySelectorAll("tr"));
+      const ths = tabela.querySelectorAll("thead th");
+
+      if (colunaAtual === coluna) {
+        ordemAsc = !ordemAsc;
+      } else {
+        colunaAtual = coluna;
+        ordemAsc = true;
+      }
+
+      ths.forEach((th, i) => {
+        th.classList.remove("sorted-asc", "sorted-desc");
+        if (i === coluna) th.classList.add(ordemAsc ? "sorted-asc" : "sorted-desc");
+      });
+
+      linhas.sort((a, b) => {
+        const ta = a.cells[coluna]?.innerText.trim() ?? "";
+        const tb = b.cells[coluna]?.innerText.trim() ?? "";
+        return ordemAsc ? ta.localeCompare(tb) : tb.localeCompare(ta);
+      });
+
+      linhas.forEach(l => tbody.appendChild(l));
+    }
+  </script>
+</body>
+</html>

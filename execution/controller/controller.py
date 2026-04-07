@@ -8,6 +8,7 @@ from loguru import logger
 from execution.controller.agente import Agente
 from execution.controller.classes import InteracaoUser, InteracaoAssistant
 from execution.controller.home import Home
+from execution.controller.log_view import LogView
 from execution.controller.uzapi import Uzapi
 from execution.controller.version import Version
 from execution.dao.dao_interacao import DaoInteracao
@@ -23,27 +24,58 @@ class Controller:
     @staticmethod
     def get_lista_log(quantidade: int, data: date, nivel: str | None, fone: str | None) -> str:
         """
-        Lê o arquivo de log da data informada e retorna as últimas N linhas,
-        com filtragem opcional por nível e fone.
+        Lê o arquivo de log da data informada, filtra e retorna HTML com grid navegável.
         """
         caminho = Path(f"logs/app_{data}.log")
         if not caminho.exists():
-            return f"Arquivo de log não encontrado: {caminho}\n"
+            registros: list[dict] = []
+        else:
+            with caminho.open("r", encoding="utf-8") as arquivo:
+                linhas = arquivo.readlines()
 
-        with caminho.open("r", encoding="utf-8") as arquivo:
-            linhas = arquivo.readlines()
+            # Filtra por nível (ex: INFO, ERROR)
+            if nivel:
+                linhas = [l for l in linhas if f"| {nivel.upper()}" in l]
 
-        # Filtra por nível (ex: INFO, ERROR)
-        if nivel:
-            linhas = [l for l in linhas if f"| {nivel.upper()}" in l]
+            # Filtra por fone — aceita com ou sem formatação
+            if fone:
+                fone_digitos = ''.join(filter(str.isdigit, fone))
+                linhas = [l for l in linhas if fone_digitos in l or fone in l]
 
-        # Filtra por fone — aceita com ou sem formatação
-        if fone:
-            fone_digitos = ''.join(filter(str.isdigit, fone))
-            linhas = [l for l in linhas if fone_digitos in l or fone in l]
+            # Pega as últimas N linhas e parseia em dicts estruturados
+            linhas_recentes = list(deque(linhas, maxlen=quantidade))
+            registros = Controller._parsear_linhas_log(linhas_recentes)
 
-        # Retorna as últimas N linhas
-        return "".join(deque(linhas, maxlen=quantidade))
+        return LogView.get(
+            registros=registros,
+            quantidade=quantidade,
+            data=data,
+            nivel=nivel,
+            fone=fone,
+        )
+
+    @staticmethod
+    def _parsear_linhas_log(linhas: list[str]) -> list[dict]:
+        """
+        Converte linhas de texto do log no formato:
+        'DD/MM/YYYY HH:mm:ss | LEVEL    | name:function:line | message'
+        em lista de dicts com chaves: data_hora, nivel, local, mensagem.
+        Linhas que não seguem o formato são agrupadas na mensagem anterior.
+        """
+        registros: list[dict] = []
+        for linha in linhas:
+            partes = linha.split("|", 3)
+            if len(partes) == 4:
+                registros.append({
+                    "data_hora": partes[0].strip(),
+                    "nivel":     partes[1].strip(),
+                    "local":     partes[2].strip(),
+                    "mensagem":  partes[3].strip(),
+                })
+            elif registros:
+                # Linha de continuação (ex: traceback) — anexa à mensagem anterior
+                registros[-1]["mensagem"] += "\n" + linha.rstrip()
+        return registros
 
     @staticmethod
     async def eliminar_historico(fone: str) -> None:

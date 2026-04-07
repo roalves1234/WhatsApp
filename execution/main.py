@@ -7,7 +7,7 @@ from datetime import date
 from typing import Any
 from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from loguru import logger
 from execution.controller.controller import Controller
 from execution.controller.classes import InteracaoAssistant
@@ -46,7 +46,7 @@ async def read_root() -> str:
     return Controller.get_home()
 
 
-@app.get("/logs", response_class=PlainTextResponse)
+@app.get("/logs", response_class=HTMLResponse)
 async def get_logs(
     quantidade: int = Query(default=100, ge=1, le=5000, description="Número de linhas a retornar"),
     nivel: str | None = Query(default=None, description="Filtrar por nível: DEBUG, INFO, WARNING, ERROR, CRITICAL"),
@@ -54,7 +54,7 @@ async def get_logs(
     data: date = Query(default_factory=date.today, description="Data do log (padrão: hoje)"),
 ) -> str:
     """
-    Retorna as últimas N linhas do log com filtros opcionais.
+    Retorna grid HTML navegável com os logs filtrados.
     """
     return Controller.get_lista_log(quantidade=quantidade, data=data, nivel=nivel, fone=fone)
 
