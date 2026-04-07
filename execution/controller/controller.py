@@ -16,11 +16,11 @@ class Controller:
         return Home.get()
 
     @staticmethod
-    def eliminar_historico(fone: str) -> None:
+    async def eliminar_historico(fone: str) -> None:
         """
         Apaga o histórico do fone.
         """
-        DaoInteracao.delete_by_fone(fone)
+        await DaoInteracao.delete_by_fone(fone)
 
     @staticmethod
     async def enviar_resposta_assistant(fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
@@ -31,7 +31,7 @@ class Controller:
         """
 
         # Consulta a LLM com o contexto recebido pelo usuário usando a instância única
-        interacao_assistant = Controller._agente.obter_resposta(fone, nome, contexto_entrada)
+        interacao_assistant = await Controller._agente.obter_resposta(fone, nome, contexto_entrada)
 
         # Resposta da IA, incluindo o tempo de resposta e versão:
         texto_resposta = textwrap.dedent(f"""

@@ -1,3 +1,5 @@
+import asyncio
+
 from execution.dao.conexao import ConexaoMongo
 from execution.controller.classes import InteracaoBase
 
@@ -7,20 +9,23 @@ class DaoInteracao:
     _COLECAO = "interacoes"
 
     @classmethod
-    def persistir(cls, interacao: InteracaoBase) -> None:
-        """Grava uma interação no MongoDB"""
+    async def persistir(cls, interacao: InteracaoBase) -> None:
+        """Grava uma interação no MongoDB sem bloquear o event loop"""
         banco = ConexaoMongo.get_banco()
-        banco[cls._COLECAO].insert_one(interacao.model_dump(mode="json"))
+        await asyncio.to_thread(banco[cls._COLECAO].insert_one, interacao.model_dump(mode="json"))
 
     @classmethod
-    def get_by_fone(cls, fone: str) -> list[dict]:
+    async def get_by_fone(cls, fone: str) -> list[dict]:
         """
         Retorna lista de interações filtradas por fone, com origem e mensagem.
+        O cursor pymongo é consumido dentro da thread para não bloquear o event loop.
 
         :param fone: Número de telefone para filtrar
         """
         banco = ConexaoMongo.get_banco()
-        registros = banco[cls._COLECAO].find({"fone": fone})
+        registros = await asyncio.to_thread(
+            lambda: list(banco[cls._COLECAO].find({"fone": fone}))
+        )
 
         interacoes = [
             {"origem": doc["origem"], "mensagem": doc["mensagem"]}
@@ -30,11 +35,11 @@ class DaoInteracao:
         return interacoes
 
     @classmethod
-    def delete_by_fone(cls, fone: str) -> None:
+    async def delete_by_fone(cls, fone: str) -> None:
         """
-        Deleta todos os registros de um número de telefone.
+        Deleta todos os registros de um número de telefone sem bloquear o event loop.
 
         :param fone: Número de telefone para deletar
         """
         banco = ConexaoMongo.get_banco()
-        banco[cls._COLECAO].delete_many({"fone": fone})
+        await asyncio.to_thread(banco[cls._COLECAO].delete_many, {"fone": fone})

@@ -53,7 +53,7 @@ async def get_interacoes(fone: str) -> dict[str, Any]:
     """
     Retorna interações filtradas por número de fone.
     """
-    interacoes = DaoInteracao.get_by_fone(fone)
+    interacoes = await DaoInteracao.get_by_fone(fone)
     return {"fone": fone, "interacoes": interacoes}
 
 
@@ -77,7 +77,7 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
         mensagem = payload.message.text
 
         if mensagem.strip().lower() == "reiniciar":
-            Controller.eliminar_historico(payload.chat.phone)
+            await Controller.eliminar_historico(payload.chat.phone)
             mensagem = "Olá"
 
         interacao_user = InteracaoUser(
@@ -85,11 +85,11 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
             nome=payload.message.senderName,
             mensagem=mensagem,
         )
-        DaoInteracao.persistir(interacao_user)
+        await DaoInteracao.persistir(interacao_user)
 
-        contexto_entrada = DaoInteracao.get_by_fone(payload.chat.phone)
+        contexto_entrada = await DaoInteracao.get_by_fone(payload.chat.phone)
         interacao_assistant = await Controller.enviar_resposta_assistant(payload.chat.phone, payload.message.senderName, contexto_entrada)
-        DaoInteracao.persistir(interacao_assistant)
+        await DaoInteracao.persistir(interacao_assistant)
 
         return interacao_assistant
     else:

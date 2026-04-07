@@ -1,3 +1,4 @@
+import asyncio
 import time
 import json
 from datetime import datetime
@@ -66,7 +67,7 @@ class Agente:
             markdown=False,
         )
 
-    def obter_resposta(self, fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
+    async def obter_resposta(self, fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:
         """
         Envia o contexto para a LLM e retorna um objeto estruturado com métricas da resposta.
 
@@ -79,7 +80,8 @@ class Agente:
         contexto_entrada_json = "Histórico de interações:\n" + json.dumps(contexto_entrada, ensure_ascii=False, indent=2)
 
         inicio: float = time.time()
-        resposta: RunOutput = self._agente.run(contexto_entrada_json, output_schema=SCHEMA_SAIDA)
+        # Executa em thread separada para não bloquear o event loop durante a chamada à OpenAI
+        resposta: RunOutput = await asyncio.to_thread(self._agente.run, contexto_entrada_json, output_schema=SCHEMA_SAIDA)
         duracao: float = time.time() - inicio
 
         conteudo = ConteudoResposta(**resposta.content)
