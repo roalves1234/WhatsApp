@@ -46,7 +46,7 @@ async def read_root() -> str:
     return Controller.get_home()
 
 
-@app.get("/log", response_class=PlainTextResponse)
+@app.get("/logs", response_class=PlainTextResponse)
 async def get_logs(
     quantidade: int = Query(default=100, ge=1, le=5000, description="Número de linhas a retornar"),
     nivel: str | None = Query(default=None, description="Filtrar por nível: DEBUG, INFO, WARNING, ERROR, CRITICAL"),
