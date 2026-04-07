@@ -3,10 +3,11 @@ load_dotenv()
 
 import execution.logger  # noqa: F401 — configura os handlers do loguru
 
+from datetime import date
 from typing import Any
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from loguru import logger
 from execution.controller.controller import Controller
 from execution.controller.classes import InteracaoAssistant
@@ -43,6 +44,19 @@ async def read_root() -> str:
     Control delegated to the Controller layer.
     """
     return Controller.get_home()
+
+
+@app.get("/log", response_class=PlainTextResponse)
+async def get_logs(
+    quantidade: int = Query(default=100, ge=1, le=5000, description="Número de linhas a retornar"),
+    nivel: str | None = Query(default=None, description="Filtrar por nível: DEBUG, INFO, WARNING, ERROR, CRITICAL"),
+    fone: str | None = Query(default=None, description="Filtrar por número de fone"),
+    data: date = Query(default_factory=date.today, description="Data do log (padrão: hoje)"),
+) -> str:
+    """
+    Retorna as últimas N linhas do log com filtros opcionais.
+    """
+    return Controller.get_lista_log(quantidade=quantidade, data=data, nivel=nivel, fone=fone)
 
 
 @app.get("/interacoes/{fone}")

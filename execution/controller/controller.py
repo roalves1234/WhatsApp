@@ -1,4 +1,7 @@
 import textwrap
+from collections import deque
+from datetime import date
+from pathlib import Path
 
 from loguru import logger
 
@@ -16,6 +19,31 @@ class Controller:
     @staticmethod
     def get_home() -> str:
         return Home.get()
+
+    @staticmethod
+    def get_lista_log(quantidade: int, data: date, nivel: str | None, fone: str | None) -> str:
+        """
+        Lê o arquivo de log da data informada e retorna as últimas N linhas,
+        com filtragem opcional por nível e fone.
+        """
+        caminho = Path(f"logs/app_{data}.log")
+        if not caminho.exists():
+            return f"Arquivo de log não encontrado: {caminho}\n"
+
+        with caminho.open("r", encoding="utf-8") as arquivo:
+            linhas = arquivo.readlines()
+
+        # Filtra por nível (ex: INFO, ERROR)
+        if nivel:
+            linhas = [l for l in linhas if f"| {nivel.upper()}" in l]
+
+        # Filtra por fone — aceita com ou sem formatação
+        if fone:
+            fone_digitos = ''.join(filter(str.isdigit, fone))
+            linhas = [l for l in linhas if fone_digitos in l or fone in l]
+
+        # Retorna as últimas N linhas
+        return "".join(deque(linhas, maxlen=quantidade))
 
     @staticmethod
     async def eliminar_historico(fone: str) -> None:

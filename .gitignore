@@ -8,7 +8,7 @@ __pycache__/
 # DOE specific
 .env
 .tmp/
-log/
+logs/
 credentials.json
 token.json
 md.md
