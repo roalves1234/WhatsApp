@@ -52,11 +52,6 @@ async def get_interacoes(fone: str) -> dict[str, Any]:
     interacoes = await DaoInteracao.get_by_fone(fone)
     return {"fone": fone, "interacoes": interacoes}
 
-
-def do_erro(mensagem: str) -> dict[str, Any]:
-    print(">>> ERRO: " + mensagem)
-    return {"detail": mensagem}
-
 @app.api_route("/webhook-recebimento", methods=["POST"])
 async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> InteracaoAssistant | dict[str, Any]:
     body = await request.body()
@@ -81,4 +76,4 @@ async def webhook_recebimento(request: Request, payload: RecebimentoPayload) -> 
 
         return interacao_assistant
     else:
-        return do_erro("Número de telefone não autorizado ou não é texto")
+        return {"detail": "Número rejeitado"}

@@ -35,7 +35,7 @@ class Uzapi:
             )
 
         if response.status_code >= 400:
-            print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            raise Exception(f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}")
 
     @staticmethod
     async def enviar_digitando(numero: str, texto: str) -> None:
@@ -66,7 +66,7 @@ class Uzapi:
             )
 
         if response.status_code >= 400:
-            print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            raise Exception(f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}")
 
         # Aguarda o tempo de digitação antes de prosseguir
         await asyncio.sleep(duracao_ms / 1000)
@@ -94,6 +94,6 @@ class Uzapi:
             )
 
         if response.status_code >= 400:
-            print(f">>> ERRO {inspect.currentframe().f_code.co_qualname}: {response.text}")
+            raise Exception(f"Erro: {inspect.currentframe().f_code.co_qualname}: {response.text}")
 
         return response.json()
