@@ -63,8 +63,10 @@ def construir_base_vetorial(texto: str) -> None:
         api_key=os.getenv("OPENAI_API_KEY", ""),
     )
 
-    # Remove chunks anteriores para evitar duplicação a cada atualização
-    cliente.table(_NOME_TABELA).delete().gte("id", 0).execute()
+    # Remove todos os chunks anteriores para evitar duplicação a cada atualização
+    # Usa neq com UUID nulo — exclui todas as linhas pois nenhuma terá esse id
+    _UUID_NULO = "00000000-0000-0000-0000-000000000000"
+    cliente.table(_NOME_TABELA).delete().neq("id", _UUID_NULO).execute()
     logger.debug("BASE VETORIAL | Chunks anteriores removidos da tabela '{tabela}'", tabela=_NOME_TABELA)
 
     SupabaseVectorStore.from_texts(

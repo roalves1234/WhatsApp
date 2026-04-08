@@ -1,21 +1,25 @@
 -- Habilitar a extensão pgvector
 create extension if not exists vector;
 
--- Tabela de chunks com embeddings
+-- Remove objetos anteriores se existirem
+drop function if exists match_documents;
+drop table if exists documents;
+
+-- Tabela de chunks com embeddings (id uuid gerado automaticamente)
 create table documents (
-    id   bigserial primary key,
-    content  text,
-    metadata jsonb,
+    id        uuid primary key default gen_random_uuid(),
+    content   text,
+    metadata  jsonb,
     embedding vector(1536)
 );
 
 -- Função de busca por similaridade (cosine distance)
 create or replace function match_documents (
     query_embedding vector(1536),
-    match_count     int     default null,
-    filter          jsonb   default '{}'
+    match_count     int   default null,
+    filter          jsonb default '{}'
 ) returns table (
-    id         bigint,
+    id         uuid,
     content    text,
     metadata   jsonb,
     similarity float
