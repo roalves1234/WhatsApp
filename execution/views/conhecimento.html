@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base de Conhecimento</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #f8fafc;
+      letter-spacing: 0.5px;
+    }
+
+    .editor-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      min-height: calc(100vh - 160px);
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 16px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    textarea:focus {
+      border-color: #6366f1;
+    }
+
+    .rodape {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-salvar {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-salvar:hover { background: #4f46e5; }
+    .btn-salvar:disabled { background: #3730a3; cursor: not-allowed; opacity: 0.7; }
+
+    /* Toast de feedback */
+    .toast {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .toast.sucesso { display: flex; background: #14532d; color: #86efac; border: 1px solid #166534; }
+    .toast.erro    { display: flex; background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f1117; }
+    ::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+  </style>
+</head>
+<body>
+
+  <h1>Base de Conhecimento</h1>
+
+  <div class="editor-wrapper">
+    <textarea id="editor" placeholder="Digite aqui o conteúdo da base de conhecimento...">{{TEXTO}}</textarea>
+
+    <div class="rodape">
+      <button class="btn-salvar" id="btn-salvar" onclick="salvar()">Salvar</button>
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+
+  <script>
+    async function salvar() {
+      const btn = document.getElementById('btn-salvar');
+      const toast = document.getElementById('toast');
+      const texto = document.getElementById('editor').value;
+
+      btn.disabled = true;
+      toast.className = 'toast';
+      toast.textContent = '';
+
+      try {
+        const resposta = await fetch('/conhecimento/salvar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto }),
+        });
+
+        if (!resposta.ok) {
+          throw new Error(`HTTP ${resposta.status}`);
+        }
+
+        toast.className = 'toast sucesso';
+        toast.textContent = '✓ Salvo com sucesso!';
+      } catch (err) {
+        toast.className = 'toast erro';
+        toast.textContent = `✗ Erro ao salvar: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        // Remove o toast após 3 segundos
+        setTimeout(() => { toast.className = 'toast'; }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -7,11 +7,13 @@ from loguru import logger
 
 from execution.controller.agente import Agente
 from execution.controller.classes import InteracaoUser, InteracaoAssistant
+from execution.controller.conhecimento_view import ConhecimentoView
 from execution.controller.home import Home
 from execution.controller.log_view import LogView
 from execution.controller.uzapi import Uzapi
 from execution.controller.version import Version
 from execution.dao.dao_interacao import DaoInteracao
+from execution.dao.dao_conhecimento import DaoConhecimento
 
 
 class Controller:
@@ -114,6 +116,18 @@ class Controller:
         await DaoInteracao.persistir(interacao_assistant)
         logger.debug("INTERAÇÃO ASSISTANT | Persistida | fone={fone}", fone=fone)
         return interacao_assistant
+
+    @staticmethod
+    async def get_conhecimento() -> str:
+        """Carrega o texto da base de conhecimento e retorna a página HTML do editor."""
+        texto = await DaoConhecimento.buscar_texto()
+        return ConhecimentoView.get(texto)
+
+    @staticmethod
+    async def salvar_conhecimento(texto: str) -> dict[str, bool]:
+        """Persiste o texto da base de conhecimento no Supabase."""
+        await DaoConhecimento.salvar_texto(texto)
+        return {"sucesso": True}
 
     @staticmethod
     async def enviar_resposta_assistant(fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:

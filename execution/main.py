@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from loguru import logger
 from execution.controller.controller import Controller
 from execution.controller.classes import InteracaoAssistant
+from execution.models.conhecimento import ConhecimentoPayload
 from execution.models.webhook import RecebimentoPayload
 
 app = FastAPI(
@@ -57,6 +58,23 @@ async def get_logs(
     Retorna grid HTML navegável com os logs filtrados.
     """
     return Controller.get_lista_log(quantidade=quantidade, data=data, nivel=nivel, fone=fone)
+
+
+@app.get("/conhecimento", response_class=HTMLResponse)
+async def get_conhecimento() -> str:
+    """
+    Exibe a interface de edição da base de conhecimento.
+    O texto é carregado diretamente do Supabase.
+    """
+    return await Controller.get_conhecimento()
+
+
+@app.post("/conhecimento/salvar")
+async def salvar_conhecimento(payload: ConhecimentoPayload) -> dict[str, bool]:
+    """
+    Persiste o texto da base de conhecimento no Supabase.
+    """
+    return await Controller.salvar_conhecimento(payload.texto)
 
 
 @app.get("/interacoes/{fone}")
