@@ -9,7 +9,7 @@ para garantir que chunks respeitem quebras naturais do texto.
 import os
 from pathlib import Path
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from loguru import logger
