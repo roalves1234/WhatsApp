@@ -77,6 +77,14 @@ async def salvar_conhecimento(payload: ConhecimentoPayload) -> dict[str, bool]:
     return await Controller.salvar_conhecimento(payload.texto)
 
 
+@app.get("/arquivos")
+async def get_arquivos() -> dict[str, list[dict]]:
+    """
+    Lista arquivos de log (.log) e índices FAISS (.faiss) com nome, tamanho e data de modificação.
+    """
+    return Controller.get_lista_arquivos()
+
+
 @app.get("/interacoes/{fone}")
 async def get_interacoes(fone: str) -> dict[str, Any]:
     """
