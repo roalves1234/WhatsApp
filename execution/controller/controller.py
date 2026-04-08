@@ -1,6 +1,6 @@
 import textwrap
 from collections import deque
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from loguru import logger
@@ -123,6 +123,39 @@ class Controller:
         """Carrega o texto da base de conhecimento e retorna a página HTML do editor."""
         texto = await DaoConhecimento.buscar_texto()
         return ConhecimentoView.get(texto)
+
+    @staticmethod
+    def get_lista_arquivos() -> dict[str, list[dict]]:
+        """
+        Lista arquivos de log (.log) e índices FAISS (.faiss) com metadados.
+        Arquivos FAISS salvos como diretório têm o tamanho calculado como soma dos conteúdos internos.
+        """
+        def _info_arquivo(caminho: Path) -> dict:
+            """Retorna metadados de um arquivo ou diretório."""
+            if caminho.is_dir():
+                tamanho = sum(f.stat().st_size for f in caminho.rglob("*") if f.is_file())
+            else:
+                tamanho = caminho.stat().st_size
+            modificado = datetime.fromtimestamp(caminho.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+            return {"nome": caminho.name, "tamanho_bytes": tamanho, "modificado_em": modificado}
+
+        # Logs na pasta /logs
+        pasta_logs = Path("logs")
+        arquivos_log = sorted(
+            [_info_arquivo(f) for f in pasta_logs.glob("*.log") if f.is_file()],
+            key=lambda x: x["modificado_em"],
+            reverse=True,
+        ) if pasta_logs.exists() else []
+
+        # Índices FAISS (diretórios ou arquivos com extensão .faiss na raiz)
+        raiz = Path(".")
+        arquivos_faiss = sorted(
+            [_info_arquivo(p) for p in raiz.glob("*.faiss")],
+            key=lambda x: x["modificado_em"],
+            reverse=True,
+        )
+
+        return {"logs": arquivos_log, "faiss": arquivos_faiss}
 
     @staticmethod
     async def salvar_conhecimento(texto: str) -> dict[str, bool]:
