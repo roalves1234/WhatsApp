@@ -4,7 +4,7 @@ from datetime import date
 from loguru import logger
 
 from execution.controller.agente import Agente
-from execution.controller.base_vetorial import construir_base_vetorial
+from execution.controller.base_vetorial import BaseVetorial
 from execution.controller.classes import InteracaoUser, InteracaoAssistant
 from execution.controller.conhecimento_view import ConhecimentoView
 from execution.controller.home import Home
@@ -64,7 +64,7 @@ class Controller:
     async def salvar_conhecimento(texto: str) -> dict[str, bool]:
         """Persiste o texto da base de conhecimento no Supabase e reconstrói a base vetorial."""
         await DaoConhecimento.salvar_texto(texto)
-        construir_base_vetorial(texto)
+        BaseVetorial().atualizar(texto)
         return {"sucesso": True}
 
     @staticmethod
@@ -82,14 +82,14 @@ class Controller:
         # Consulta a LLM com o contexto recebido pelo usuário usando a instância única
         interacao_assistant = await Controller._agente.obter_resposta(fone, nome, contexto_entrada)
 
-        await Controller.enviar_resposta_assistant(interacao_assistant)
+        await Controller._enviar_resposta_assistant(interacao_assistant)
         await DaoInteracao.persistir(interacao_assistant)
 
         logger.debug("INTERAÇÃO ASSISTANT | Persistida | fone={fone}", fone=fone)
         return interacao_assistant
 
     @staticmethod
-    async def enviar_resposta_assistant(interacao_assistant: InteracaoAssistant) -> None:
+    async def _enviar_resposta_assistant(interacao_assistant: InteracaoAssistant) -> None:
         """
         Formata e envia a resposta do assistente ao remetente via WhatsApp.
         """
