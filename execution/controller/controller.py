@@ -1,7 +1,5 @@
 import textwrap
-from collections import deque
-from datetime import date, datetime
-from pathlib import Path
+from datetime import date
 
 from loguru import logger
 
@@ -10,7 +8,7 @@ from execution.controller.base_vetorial import construir_base_vetorial
 from execution.controller.classes import InteracaoUser, InteracaoAssistant
 from execution.controller.conhecimento_view import ConhecimentoView
 from execution.controller.home import Home
-from execution.controller.log_view import LogView
+from execution.controller.logs import LogFile
 from execution.controller.uzapi import Uzapi
 from execution.controller.version import Version
 from execution.dao.dao_interacao import DaoInteracao
@@ -26,59 +24,7 @@ class Controller:
 
     @staticmethod
     def get_lista_log(quantidade: int, data: date, nivel: str | None, fone: str | None) -> str:
-        """
-        Lê o arquivo de log da data informada, filtra e retorna HTML com grid navegável.
-        """
-        caminho = Path(f"logs/app_{data}.log")
-        if not caminho.exists():
-            registros: list[dict] = []
-        else:
-            with caminho.open("r", encoding="utf-8") as arquivo:
-                linhas = arquivo.readlines()
-
-            # Filtra por nível (ex: INFO, ERROR)
-            if nivel:
-                linhas = [l for l in linhas if f"| {nivel.upper()}" in l]
-
-            # Filtra por fone — aceita com ou sem formatação
-            if fone:
-                fone_digitos = ''.join(filter(str.isdigit, fone))
-                linhas = [l for l in linhas if fone_digitos in l or fone in l]
-
-            # Pega as últimas N linhas e parseia em dicts estruturados
-            linhas_recentes = list(deque(linhas, maxlen=quantidade))
-            registros = Controller._parsear_linhas_log(linhas_recentes)
-
-        return LogView.get(
-            registros=registros,
-            quantidade=quantidade,
-            data=data,
-            nivel=nivel,
-            fone=fone,
-        )
-
-    @staticmethod
-    def _parsear_linhas_log(linhas: list[str]) -> list[dict]:
-        """
-        Converte linhas de texto do log no formato:
-        'DD/MM/YYYY HH:mm:ss | LEVEL    | name:function:line | message'
-        em lista de dicts com chaves: data_hora, nivel, local, mensagem.
-        Linhas que não seguem o formato são agrupadas na mensagem anterior.
-        """
-        registros: list[dict] = []
-        for linha in linhas:
-            partes = linha.split("|", 3)
-            if len(partes) == 4:
-                registros.append({
-                    "data_hora": partes[0].strip(),
-                    "nivel":     partes[1].strip(),
-                    "local":     partes[2].strip(),
-                    "mensagem":  partes[3].strip(),
-                })
-            elif registros:
-                # Linha de continuação (ex: traceback) — anexa à mensagem anterior
-                registros[-1]["mensagem"] += "\n" + linha.rstrip()
-        return registros
+        return LogFile.listar(quantidade=quantidade, data=data, nivel=nivel, fone=fone)
 
     @staticmethod
     async def eliminar_historico(fone: str) -> None:
@@ -100,8 +46,26 @@ class Controller:
         """
         interacao_user = InteracaoUser(fone=fone, nome=nome, mensagem=mensagem)
         await DaoInteracao.persistir(interacao_user)
+
         logger.debug("INTERAÇÃO USER | Persistida | fone={fone} | nome={nome}", fone=fone, nome=nome)
         return interacao_user
+
+    @staticmethod
+    async def get_conhecimento() -> str:
+        """Carrega o texto da base de conhecimento e retorna a página HTML do editor."""
+        texto = await DaoConhecimento.buscar_texto()
+        return ConhecimentoView.get(texto)
+
+    @staticmethod
+    def get_lista_arquivos_log() -> dict[str, list[dict]]:
+        return LogFile.listar_arquivos()
+
+    @staticmethod
+    async def salvar_conhecimento(texto: str) -> dict[str, bool]:
+        """Persiste o texto da base de conhecimento no Supabase e reconstrói a base vetorial."""
+        await DaoConhecimento.salvar_texto(texto)
+        construir_base_vetorial(texto)
+        return {"sucesso": True}
 
     @staticmethod
     async def doInteracaoAssistant(fone: str, nome: str) -> InteracaoAssistant:
@@ -115,42 +79,9 @@ class Controller:
         contexto_entrada = await DaoInteracao.get_by_fone(fone)
         interacao_assistant = await Controller.enviar_resposta_assistant(fone, nome, contexto_entrada)
         await DaoInteracao.persistir(interacao_assistant)
+
         logger.debug("INTERAÇÃO ASSISTANT | Persistida | fone={fone}", fone=fone)
         return interacao_assistant
-
-    @staticmethod
-    async def get_conhecimento() -> str:
-        """Carrega o texto da base de conhecimento e retorna a página HTML do editor."""
-        texto = await DaoConhecimento.buscar_texto()
-        return ConhecimentoView.get(texto)
-
-    @staticmethod
-    def get_lista_arquivos() -> dict[str, list[dict]]:
-        """
-        Lista arquivos de log (.log) com nome, tamanho e data de modificação.
-        """
-        def _info_arquivo(caminho: Path) -> dict:
-            """Retorna metadados de um arquivo."""
-            tamanho = caminho.stat().st_size
-            modificado = datetime.fromtimestamp(caminho.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
-            return {"nome": caminho.name, "tamanho_bytes": tamanho, "modificado_em": modificado}
-
-        # Logs na pasta /logs
-        pasta_logs = Path("logs")
-        arquivos_log = sorted(
-            [_info_arquivo(f) for f in pasta_logs.glob("*.log") if f.is_file()],
-            key=lambda x: x["modificado_em"],
-            reverse=True,
-        ) if pasta_logs.exists() else []
-
-        return {"logs": arquivos_log}
-
-    @staticmethod
-    async def salvar_conhecimento(texto: str) -> dict[str, bool]:
-        """Persiste o texto da base de conhecimento no Supabase e reconstrói a base vetorial."""
-        await DaoConhecimento.salvar_texto(texto)
-        construir_base_vetorial(texto)
-        return {"sucesso": True}
 
     @staticmethod
     async def enviar_resposta_assistant(fone: str, nome: str, contexto_entrada: list[dict]) -> InteracaoAssistant:

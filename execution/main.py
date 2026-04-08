@@ -82,7 +82,7 @@ async def get_arquivos() -> dict[str, list[dict]]:
     """
     Lista arquivos de log (.log) com nome, tamanho e data de modificação.
     """
-    return Controller.get_lista_arquivos()
+    return Controller.get_lista_arquivos_log()
 
 
 @app.get("/interacoes/{fone}")
