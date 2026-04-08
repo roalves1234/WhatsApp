@@ -6,6 +6,7 @@ from pathlib import Path
 from loguru import logger
 
 from execution.controller.agente import Agente
+from execution.controller.base_vetorial import construir_base_vetorial
 from execution.controller.classes import InteracaoUser, InteracaoAssistant
 from execution.controller.conhecimento_view import ConhecimentoView
 from execution.controller.home import Home
@@ -125,8 +126,9 @@ class Controller:
 
     @staticmethod
     async def salvar_conhecimento(texto: str) -> dict[str, bool]:
-        """Persiste o texto da base de conhecimento no Supabase."""
+        """Persiste o texto da base de conhecimento no Supabase e reconstrói a base vetorial FAISS."""
         await DaoConhecimento.salvar_texto(texto)
+        construir_base_vetorial(texto)
         return {"sucesso": True}
 
     @staticmethod
