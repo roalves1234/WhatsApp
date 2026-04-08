@@ -30,8 +30,6 @@ SCHEMA_SAIDA: dict = {
 }
 
 
-
-
 class Agente:
     """
     Classe que gerencia o agente de IA utilizando o framework Agno.
