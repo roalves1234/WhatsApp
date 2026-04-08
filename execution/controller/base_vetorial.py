@@ -1,21 +1,21 @@
 """
-Módulo responsável por construir e persistir a base vetorial FAISS
+Módulo responsável por construir e persistir a base vetorial no Supabase (pgvector)
 a partir do texto da base de conhecimento.
 
-Utiliza RecursiveCharacterTextSplitter com separadores de parágrafo
-para garantir que chunks respeitem quebras naturais do texto.
+Utiliza RecursiveCharacterTextSplitter com separadores de parágrafo para garantir
+que chunks respeitem quebras naturais do texto.
+
+Pré-requisitos no Supabase (executar uma única vez):
+(veja em base_vetorial.sql)
 """
 
 import os
-from pathlib import Path
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
-
-# Caminho onde o índice FAISS será salvo no disco
-_CAMINHO_FAISS = Path("base_conhecimento.faiss")
+from supabase import Client, create_client
 
 # Configurações dos chunks
 _CHUNK_SIZE = 400
@@ -24,18 +24,29 @@ _CHUNK_OVERLAP = 80
 # Separadores em ordem de prioridade: parágrafo > quebra de linha > espaço > caractere
 _SEPARADORES = ["\n\n", "\n", " ", ""]
 
+# Nome da tabela e da função RPC no Supabase
+_NOME_TABELA = "documents"
+_NOME_FUNCAO = "match_documents"
+
 
 def construir_base_vetorial(texto: str) -> None:
     """
-    Divide o texto em chunks respeitando parágrafos inteiros e cria
-    uma base vetorial FAISS salva em disco.
+    Divide o texto em chunks respeitando parágrafos inteiros, gera embeddings
+    via OpenAI e armazena no Supabase (pgvector).
+
+    Remove todos os chunks anteriores antes de inserir os novos para evitar
+    duplicação de conteúdo.
 
     Args:
         texto: Conteúdo completo da base de conhecimento.
     """
     if not texto.strip():
-        logger.warning("BASE VETORIAL | Texto vazio — índice FAISS não será gerado")
+        logger.warning("BASE VETORIAL | Texto vazio — nada será gravado no Supabase")
         return
+
+    supabase_url = os.getenv("SUPABASE_URL", "")
+    supabase_key = os.getenv("SUPABASE_KEY", "")
+    cliente: Client = create_client(supabase_url, supabase_key)
 
     splitter = RecursiveCharacterTextSplitter(
         separators=_SEPARADORES,
@@ -52,11 +63,20 @@ def construir_base_vetorial(texto: str) -> None:
         api_key=os.getenv("OPENAI_API_KEY", ""),
     )
 
-    indice = FAISS.from_texts(chunks, embeddings)
-    indice.save_local(str(_CAMINHO_FAISS))
+    # Remove chunks anteriores para evitar duplicação a cada atualização
+    cliente.table(_NOME_TABELA).delete().gte("id", 0).execute()
+    logger.debug("BASE VETORIAL | Chunks anteriores removidos da tabela '{tabela}'", tabela=_NOME_TABELA)
+
+    SupabaseVectorStore.from_texts(
+        texts=chunks,
+        embedding=embeddings,
+        client=cliente,
+        table_name=_NOME_TABELA,
+        query_name=_NOME_FUNCAO,
+    )
 
     logger.info(
-        "BASE VETORIAL | Índice salvo | caminho={caminho} | chunks={n}",
-        caminho=_CAMINHO_FAISS,
+        "BASE VETORIAL | Chunks gravados no Supabase | tabela={tabela} | total={n}",
+        tabela=_NOME_TABELA,
         n=len(chunks),
     )

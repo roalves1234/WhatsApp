@@ -127,15 +127,11 @@ class Controller:
     @staticmethod
     def get_lista_arquivos() -> dict[str, list[dict]]:
         """
-        Lista arquivos de log (.log) e índices FAISS (.faiss) com metadados.
-        Arquivos FAISS salvos como diretório têm o tamanho calculado como soma dos conteúdos internos.
+        Lista arquivos de log (.log) com nome, tamanho e data de modificação.
         """
         def _info_arquivo(caminho: Path) -> dict:
-            """Retorna metadados de um arquivo ou diretório."""
-            if caminho.is_dir():
-                tamanho = sum(f.stat().st_size for f in caminho.rglob("*") if f.is_file())
-            else:
-                tamanho = caminho.stat().st_size
+            """Retorna metadados de um arquivo."""
+            tamanho = caminho.stat().st_size
             modificado = datetime.fromtimestamp(caminho.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
             return {"nome": caminho.name, "tamanho_bytes": tamanho, "modificado_em": modificado}
 
@@ -147,19 +143,11 @@ class Controller:
             reverse=True,
         ) if pasta_logs.exists() else []
 
-        # Índices FAISS (diretórios ou arquivos com extensão .faiss na raiz)
-        raiz = Path(".")
-        arquivos_faiss = sorted(
-            [_info_arquivo(p) for p in raiz.glob("*.faiss")],
-            key=lambda x: x["modificado_em"],
-            reverse=True,
-        )
-
-        return {"logs": arquivos_log, "faiss": arquivos_faiss}
+        return {"logs": arquivos_log}
 
     @staticmethod
     async def salvar_conhecimento(texto: str) -> dict[str, bool]:
-        """Persiste o texto da base de conhecimento no Supabase e reconstrói a base vetorial FAISS."""
+        """Persiste o texto da base de conhecimento no Supabase e reconstrói a base vetorial."""
         await DaoConhecimento.salvar_texto(texto)
         construir_base_vetorial(texto)
         return {"sucesso": True}

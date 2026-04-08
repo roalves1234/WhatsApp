@@ -80,7 +80,7 @@ async def salvar_conhecimento(payload: ConhecimentoPayload) -> dict[str, bool]:
 @app.get("/arquivos")
 async def get_arquivos() -> dict[str, list[dict]]:
     """
-    Lista arquivos de log (.log) e índices FAISS (.faiss) com nome, tamanho e data de modificação.
+    Lista arquivos de log (.log) com nome, tamanho e data de modificação.
     """
     return Controller.get_lista_arquivos()
 
