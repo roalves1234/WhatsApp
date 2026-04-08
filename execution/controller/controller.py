@@ -1,5 +1,4 @@
 ﻿from datetime import date
-
 from execution.controller.classes import InteracaoAssistant, InteracaoUser
 from execution.controller.conhecimento_service import ConhecimentoService
 from execution.controller.home_service import HomeService
