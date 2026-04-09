@@ -17,9 +17,17 @@ class LLM:
 
 class SupabaseConfig:
     """
-    Classe de constantes para a conexão direta ao PostgreSQL do Supabase (pgvector).
-    A URL segue o formato: postgresql+psycopg://postgres.<ref>:<senha>@<host>:5432/postgres
-    Disponível no painel Supabase > Settings > Database > Connection string (URI).
+    Classe de constantes para a conexão com o Supabase.
+    - URL / KEY: usadas pelo SDK Python (REST API).
+    - DB_URL: connection string do PostgreSQL, montada a partir das variáveis do docker-compose.
     """
-    DB_URL = os.getenv("SUPABASE_DB_URL", "")
+    URL = os.getenv("SUPABASE_URL", "")
+    KEY = os.getenv("SUPABASE_KEY", "")
+
+    # Conexão direta ao PostgreSQL (usada pelo PgVector)
+    _PG_HOST = os.getenv("POSTGRES_HOST", "db")
+    _PG_PORT = os.getenv("POSTGRES_PORT", "5432")
+    _PG_DB = os.getenv("POSTGRES_DB", "postgres")
+    _PG_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
+    DB_URL = f"postgresql+psycopg://postgres:{_PG_PASSWORD}@{_PG_HOST}:{_PG_PORT}/{_PG_DB}"
 
