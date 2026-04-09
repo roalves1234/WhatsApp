@@ -1,35 +1,24 @@
-import os
-
 import httpx
 from loguru import logger
 
-# URL base e chave anônima do Supabase, lidas do .env
-_SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-_SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
-_TABELA = "base_conhecimento"
-
-
-def _cabecalhos() -> dict[str, str]:
-    """Retorna os cabeçalhos obrigatórios para autenticação na API REST do Supabase."""
-    return {
-        "apikey": _SUPABASE_KEY,
-        "Authorization": f"Bearer {_SUPABASE_KEY}",
-        "Content-Type": "application/json",
-    }
-
+from execution.dao.conexao import ConexaoRestSupabase
 
 class DaoConhecimento:
     """DAO responsável por ler e gravar a base de conhecimento no Supabase."""
 
+    _TABELA = "base_conhecimento"
+    _URL_BASE = ConexaoRestSupabase.url_tabela(_TABELA)
+
     @staticmethod
     async def buscar_texto() -> str:
-        """
-        Busca o campo 'texto' do primeiro registro da tabela base_conhecimento.
+        """Busca o campo 'texto' do primeiro registro da tabela base_conhecimento.
         Retorna string vazia se a tabela estiver sem registros.
         """
-        url = f"{_SUPABASE_URL}/rest/v1/{_TABELA}?select=texto&limit=1"
         async with httpx.AsyncClient() as cliente:
-            resposta = await cliente.get(url, headers=_cabecalhos())
+            resposta = await cliente.get(
+                f"{DaoConhecimento._URL_BASE}?select=texto&limit=1",
+                headers=ConexaoRestSupabase.cabecalhos(),
+            )
             resposta.raise_for_status()
             dados: list[dict] = resposta.json()
 
@@ -38,36 +27,48 @@ class DaoConhecimento:
         return texto
 
     @staticmethod
-    async def salvar_texto(texto: str) -> None:
-        """
-        Atualiza o campo 'texto' do primeiro registro da tabela base_conhecimento.
-        Se não existir nenhum registro, insere um novo.
-        """
-        url_base = f"{_SUPABASE_URL}/rest/v1/{_TABELA}"
-
+    async def _buscar_id_registro() -> str | None:
+        """Retorna o id do primeiro registro existente, ou None se a tabela estiver vazia."""
         async with httpx.AsyncClient() as cliente:
-            # Busca o id do primeiro registro para montar o filtro do PATCH
-            resposta_id = await cliente.get(
-                f"{url_base}?select=id&limit=1",
-                headers=_cabecalhos(),
+            resposta = await cliente.get(
+                f"{DaoConhecimento._URL_BASE}?select=id&limit=1",
+                headers=ConexaoRestSupabase.cabecalhos(),
             )
-            resposta_id.raise_for_status()
-            dados: list[dict] = resposta_id.json()
+            resposta.raise_for_status()
+            dados: list[dict] = resposta.json()
 
-            if dados:
-                id_registro = dados[0]["id"]
-                resposta = await cliente.patch(
-                    f"{url_base}?id=eq.{id_registro}",
-                    headers=_cabecalhos(),
-                    json={"texto": texto},
-                )
-            else:
-                # Cria o primeiro registro caso a tabela esteja vazia
-                resposta = await cliente.post(
-                    url_base,
-                    headers=_cabecalhos(),
-                    json={"texto": texto},
-                )
+        return dados[0]["id"] if dados else None
 
-        resposta.raise_for_status()
+    @staticmethod
+    async def _atualizar_texto(id_registro: str, texto: str) -> None:
+        """Atualiza o campo 'texto' do registro identificado por id_registro via PATCH."""
+        async with httpx.AsyncClient() as cliente:
+            resposta = await cliente.patch(
+                f"{DaoConhecimento._URL_BASE}?id=eq.{id_registro}",
+                headers=ConexaoRestSupabase.cabecalhos(),
+                json={"texto": texto},
+            )
+            resposta.raise_for_status()
+
+    @staticmethod
+    async def _inserir_texto(texto: str) -> None:
+        """Insere um novo registro com o campo 'texto' via POST."""
+        async with httpx.AsyncClient() as cliente:
+            resposta = await cliente.post(
+                DaoConhecimento._URL_BASE,
+                headers=ConexaoRestSupabase.cabecalhos(),
+                json={"texto": texto},
+            )
+            resposta.raise_for_status()
+
+    @staticmethod
+    async def salvar_texto(texto: str) -> None:
+        """Persiste o texto na tabela: atualiza o registro existente ou insere um novo."""
+        id_registro = await DaoConhecimento._buscar_id_registro()
+
+        if id_registro:
+            await DaoConhecimento._atualizar_texto(id_registro, texto)
+        else:
+            await DaoConhecimento._inserir_texto(texto)
+
         logger.info("CONHECIMENTO | Texto salvo | tamanho={n} chars", n=len(texto))

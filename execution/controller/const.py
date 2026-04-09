@@ -10,3 +10,12 @@ class LLM:
     Classe de constantes para a integração com a LLM.
     """
     MODELO_ID = "gpt-4o-mini"
+
+class Supabase:
+    """
+    Classe de constantes para a integração com o Supabase, lidas do .env.
+    """
+    import os
+    URL = os.getenv("SUPABASE_URL", "")
+    KEY = os.getenv("SUPABASE_KEY", "")
+

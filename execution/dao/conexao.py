@@ -1,6 +1,26 @@
 from pymongo import MongoClient
 from pymongo.database import Database
 
+from execution.controller.const import Supabase
+
+
+class ConexaoRestSupabase:
+    """Responsável por fornecer conexões e URLs de acesso ao Supabase."""
+
+    @staticmethod
+    def url_tabela(tabela: str) -> str:
+        """Retorna a URL REST da tabela informada."""
+        return f"{Supabase.URL}/rest/v1/{tabela}"
+
+    @staticmethod
+    def cabecalhos() -> dict[str, str]:
+        """Retorna os cabeçalhos de autenticação para a API REST do Supabase."""
+        return {
+            "apikey": Supabase.KEY,
+            "Authorization": f"Bearer {Supabase.KEY}",
+            "Content-Type": "application/json",
+        }
+
 
 class ConexaoMongo:
     """Singleton para gerenciar a conexão com MongoDB"""

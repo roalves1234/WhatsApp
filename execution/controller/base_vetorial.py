@@ -17,6 +17,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
 from supabase import Client, create_client
 
+from execution.controller.const import Supabase
+
 
 class BaseVetorial:
     """Gerencia a construção e persistência da base vetorial no Supabase (pgvector)."""
@@ -37,9 +39,7 @@ class BaseVetorial:
 
     def _criar_cliente_supabase(self) -> Client:
         """Cria e retorna o cliente Supabase a partir das variáveis de ambiente."""
-        url = os.getenv("SUPABASE_URL", "")
-        key = os.getenv("SUPABASE_KEY", "")
-        return create_client(url, key)
+        return create_client(Supabase.URL, Supabase.KEY)
 
     def _criar_embeddings(self) -> OpenAIEmbeddings:
         """Instancia o modelo de embeddings da OpenAI."""
