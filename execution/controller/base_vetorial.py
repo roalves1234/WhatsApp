@@ -15,9 +15,9 @@ from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
-from supabase import Client, create_client
+from supabase import Client
 
-from execution.controller.const import Supabase
+from execution.dao.conexao import ConexaoSupabase
 
 
 class BaseVetorial:
@@ -36,10 +36,6 @@ class BaseVetorial:
 
     # UUID nulo usado para deletar todas as linhas via neq (nenhuma linha terá esse id)
     _UUID_NULO = "00000000-0000-0000-0000-000000000000"
-
-    def _criar_cliente_supabase(self) -> Client:
-        """Cria e retorna o cliente Supabase a partir das variáveis de ambiente."""
-        return create_client(Supabase.URL, Supabase.KEY)
 
     def _criar_embeddings(self) -> OpenAIEmbeddings:
         """Instancia o modelo de embeddings da OpenAI."""
@@ -95,7 +91,7 @@ class BaseVetorial:
             logger.warning("BASE VETORIAL | Texto vazio — nada será gravado no Supabase")
             return
 
-        cliente = self._criar_cliente_supabase()
+        cliente: Client = ConexaoSupabase.get_cliente()
         embeddings = self._criar_embeddings()
         chunks = self._dividir_em_chunks(texto)
 

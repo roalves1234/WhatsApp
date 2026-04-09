@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from pymongo.database import Database
+from supabase import Client, create_client
 
 from execution.controller.const import Supabase
 
@@ -20,6 +21,18 @@ class ConexaoRestSupabase:
             "Authorization": f"Bearer {Supabase.KEY}",
             "Content-Type": "application/json",
         }
+
+
+class ConexaoSupabase:
+    """Singleton para gerenciar o cliente Supabase (SDK Python / pgvector)."""
+    _cliente: Client | None = None
+
+    @classmethod
+    def get_cliente(cls) -> Client:
+        """Obtém o cliente Supabase, instanciando-o na primeira chamada."""
+        if cls._cliente is None:
+            cls._cliente = create_client(Supabase.URL, Supabase.KEY)
+        return cls._cliente
 
 
 class ConexaoMongo:
