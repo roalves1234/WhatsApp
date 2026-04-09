@@ -8,7 +8,7 @@ from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
 from execution.controller.const import LLM
 from execution.controller.classes import ConteudoResposta, InteracaoAssistant
-from execution.controller.agente_tool_rag import RagTool
+from execution.controller.agente_tool_rag import criar_knowledge
 from execution.dao.dao_interacao import DaoInteracao
 
 
@@ -56,12 +56,13 @@ class Agente:
         # O framework Agno busca automaticamente a variável de ambiente OPENAI_API_KEY
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
-            tools=[RagTool()],
+            knowledge=criar_knowledge(),
+            search_knowledge=True,
             instructions=[
                 "Você é um assistente virtual integrado ao WhatsApp.",
                 "Responda de forma concisa e amigável.",
                 "Sempre que o usuário fizer uma pergunta ou tiver uma dúvida, utilize a ferramenta "
-                "'consultar_base_conhecimento' para buscar informações relevantes antes de responder.",
+                "'search_knowledge_base' para buscar informações relevantes antes de responder.",
                 "Baseie sua resposta nas informações retornadas pela base de conhecimento.",
                 "Se a base de conhecimento não tiver informações relevantes, responda com base no seu "
                 "conhecimento geral, mas informe que a resposta não veio da base de conhecimento.",

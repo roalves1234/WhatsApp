@@ -1,3 +1,6 @@
+import os
+
+
 class UzapiConfig:
     """
     Classe de constantes para a integração com a API da Uzapi.
@@ -10,4 +13,13 @@ class LLM:
     Classe de constantes para a integração com a LLM.
     """
     MODELO_ID = "gpt-4o-mini"
+
+
+class SupabaseConfig:
+    """
+    Classe de constantes para a conexão direta ao PostgreSQL do Supabase (pgvector).
+    A URL segue o formato: postgresql+psycopg://postgres.<ref>:<senha>@<host>:5432/postgres
+    Disponível no painel Supabase > Settings > Database > Connection string (URI).
+    """
+    DB_URL = os.getenv("SUPABASE_DB_URL", "")
 
