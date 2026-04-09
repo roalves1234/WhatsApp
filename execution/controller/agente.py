@@ -8,7 +8,7 @@ from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
 from execution.controller.const import LLM
 from execution.controller.classes import ConteudoResposta, InteracaoAssistant
-from execution.controller.rag_tool import RagTool
+from execution.controller.agente_tool_rag import RagTool
 from execution.dao.dao_interacao import DaoInteracao
 
 
