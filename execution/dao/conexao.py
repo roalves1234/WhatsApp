@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from supabase import Client, create_client
 
-from execution.controller.const import Supabase
+import os
 
 
 class ConexaoSupabase:
@@ -12,6 +12,8 @@ class ConexaoSupabase:
 
     _cliente: Client | None = None
     _lock_inicializacao: Lock = Lock()
+    _URL = os.getenv("SUPABASE_URL", "")
+    _KEY = os.getenv("SUPABASE_KEY", "")
 
     @classmethod
     def get_cliente(cls) -> Client:
@@ -20,7 +22,7 @@ class ConexaoSupabase:
             # Evita condição de corrida na primeira criação do cliente.
             with cls._lock_inicializacao:
                 if cls._cliente is None:
-                    cls._cliente = create_client(Supabase.URL, Supabase.KEY)
+                    cls._cliente = create_client(cls._URL, cls._KEY)
         return cls._cliente
 
 
