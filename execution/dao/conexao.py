@@ -29,18 +29,18 @@ class ConexaoSupabase:
     def testar_conexao(cls) -> dict[str, str]:
         """
         Testa a conexão com o Supabase via SDK (REST/PostgREST) executando uma
-        consulta leve na tabela de referência. Retorna sucesso ou falha.
+        consulta leve na tabela de referência. Retorna success ou fail.
         """
         try:
             cliente = cls.get_cliente()
             # Consulta mínima apenas para validar que a API REST responde.
             cliente.table(cls._TABELA_TESTE).select("id").limit(1).execute()
             logger.info("SUPABASE | Conexão SDK OK | url={url}", url=SupabaseConfig.URL)
-            return {"status": "ok", "url": SupabaseConfig.URL}
+            return {"result": "success"}
 
         except Exception as e:
             logger.error("SUPABASE | Falha na conexão SDK | url={url} | erro={erro}", url=SupabaseConfig.URL, erro=str(e))
-            return {"status": "erro", "url": SupabaseConfig.URL, "erro": str(e)}
+            return {"result": "fail"}
 
 
 class ConexaoMongo:
