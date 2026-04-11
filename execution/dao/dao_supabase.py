@@ -7,7 +7,7 @@ from execution.controller.const import SupabaseConfig
 class DaoSupabase:
     """DAO responsável por operações de diagnóstico no PostgreSQL do Supabase."""
 
-    @staticmethod
+    @staticmethodcreate_engine
     def testar_conexao() -> dict[str, str]:
         """
         Testa a conexão com o PostgreSQL e retorna o host utilizado e a versão do banco.
