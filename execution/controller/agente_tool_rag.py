@@ -15,8 +15,7 @@ from execution.controller.const import SupabaseConfig
 # Configurações da base vetorial
 _NOME_TABELA = "documents"
 _MODELO_EMBEDDING = "text-embedding-3-small"
-_QUANTIDADE_RESULTADOS = 4
-
+_MAX_RESULTADOS = 6
 
 def criar_knowledge() -> Knowledge:
     """Cria e retorna a instância de Knowledge configurada para o Supabase (pgvector)."""
@@ -27,5 +26,5 @@ def criar_knowledge() -> Knowledge:
             search_type=SearchType.vector,
             embedder=OpenAIEmbedder(id=_MODELO_EMBEDDING),
         ),
-        num_documents=_QUANTIDADE_RESULTADOS,
+        max_results=_MAX_RESULTADOS,
     )
