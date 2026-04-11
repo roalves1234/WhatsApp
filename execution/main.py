@@ -60,12 +60,6 @@ async def get_logs(
     return Controller.get_lista_log(quantidade=quantidade, data=data, nivel=nivel, fone=fone)
 
 
-@app.get("/teste-supabase")
-async def teste_supabase() -> dict[str, Any]:
-    """Testa a conexão com o PostgreSQL do Supabase (PgVector)."""
-    return Controller.testar_conexao_supabase()
-
-
 @app.get("/conhecimento", response_class=HTMLResponse)
 async def get_conhecimento() -> str:
     """
