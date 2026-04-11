@@ -3,17 +3,14 @@ Tool customizada de RAG que consulta a base vetorial no Supabase via REST
 (SDK oficial), usando a RPC 'match_documents' já definida em base_vetorial.sql.
 """
 
-import os
-
 from agno.tools import tool
 from langchain_openai import OpenAIEmbeddings
 from loguru import logger
 
+from execution.controller.const import LLM, RAGConfig
 from execution.dao.conexao import ConexaoSupabase
 
-# Configurações do RAG
-_MODELO_EMBEDDING = "text-embedding-3-small"
-_NOME_FUNCAO_RPC = "match_documents"
+# Quantidade máxima de chunks retornados na busca — exclusivo deste módulo
 _MAX_RESULTADOS = 6
 
 
@@ -34,15 +31,15 @@ def buscar_base_conhecimento(consulta: str) -> str:
     """
     # Gera embedding da consulta
     embeddings = OpenAIEmbeddings(
-        model=_MODELO_EMBEDDING,
-        api_key=os.getenv("OPENAI_API_KEY", ""),
+        model=RAGConfig.MODELO_EMBEDDING,
+        api_key=LLM.OPENAI_API_KEY,
     )
     vetor_consulta: list[float] = embeddings.embed_query(consulta)
 
     # Chama a RPC via REST (PostgREST)
     cliente = ConexaoSupabase.get_cliente()
     resposta = cliente.rpc(
-        _NOME_FUNCAO_RPC,
+        RAGConfig.NOME_FUNCAO_RPC,
         {
             "query_embedding": vetor_consulta,
             "match_count": _MAX_RESULTADOS,

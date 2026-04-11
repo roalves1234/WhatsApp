@@ -58,7 +58,8 @@ class Agente:
         """
         Inicializa o agente com o modelo especificado (executado apenas uma vez).
         """
-        # O framework Agno busca automaticamente a variável de ambiente OPENAI_API_KEY
+        # O framework Agno continua buscando a variável de ambiente OPENAI_API_KEY.
+        # A constante equivalente da aplicação agora fica centralizada em LLM.
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
             tools=[buscar_base_conhecimento],

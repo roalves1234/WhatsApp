@@ -9,30 +9,28 @@ Pré-requisitos no Supabase (executar uma única vez):
 (veja em base_vetorial.sql)
 """
 
-import os
-
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
 from supabase import Client
 
+from execution.controller.const import LLM, RAGConfig
 from execution.dao.conexao import ConexaoSupabase
 
 
 class BaseVetorial:
     """Gerencia a construção e persistência da base vetorial no Supabase (pgvector)."""
 
-    # Configurações dos chunks
+    # Configurações de divisão de texto em chunks — exclusivas deste módulo
     _CHUNK_SIZE = 400
     _CHUNK_OVERLAP = 80
 
     # Separadores em ordem de prioridade: parágrafo > quebra de linha > espaço > caractere
     _SEPARADORES = ["\n\n", "\n", " ", ""]
 
-    # Nome da tabela e da função RPC no Supabase
+    # Nome da tabela no Supabase — exclusivo deste módulo
     _NOME_TABELA = "documents"
-    _NOME_FUNCAO = "match_documents"
 
     # UUID nulo usado para deletar todas as linhas via neq (nenhuma linha terá esse id)
     _UUID_NULO = "00000000-0000-0000-0000-000000000000"
@@ -40,8 +38,8 @@ class BaseVetorial:
     def _criar_embeddings(self) -> OpenAIEmbeddings:
         """Instancia o modelo de embeddings da OpenAI."""
         return OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            api_key=os.getenv("OPENAI_API_KEY", ""),
+            model=RAGConfig.MODELO_EMBEDDING,
+            api_key=LLM.OPENAI_API_KEY,
         )
 
     def _dividir_em_chunks(self, texto: str) -> list[str]:
@@ -71,7 +69,7 @@ class BaseVetorial:
             embedding=embeddings,
             client=cliente,
             table_name=self._NOME_TABELA,
-            query_name=self._NOME_FUNCAO,
+            query_name=RAGConfig.NOME_FUNCAO_RPC,
         )
         logger.info(
             "BASE VETORIAL | Chunks gravados no Supabase | tabela={tabela} | total={n}",

@@ -12,6 +12,7 @@ class LLM:
     """
     Classe de constantes para a integração com a LLM.
     """
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
     MODELO_ID = "gpt-4o-mini"
 
 
@@ -22,4 +23,13 @@ class SupabaseConfig:
     """
     URL = os.getenv("SUPABASE_URL", "")
     KEY = os.getenv("SUPABASE_KEY", "")
+
+
+class RAGConfig:
+    """
+    Classe de constantes compartilhadas pelo sistema de RAG
+    (base vetorial + busca por similaridade).
+    """
+    MODELO_EMBEDDING = "text-embedding-3-small"
+    NOME_FUNCAO_RPC = "match_documents"
 
