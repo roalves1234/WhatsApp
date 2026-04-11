@@ -17,7 +17,7 @@ _MAX_RESULTADOS = 6
 @tool(
     name="buscar_base_conhecimento",
     description=(
-        "- Caso o usuário fizer perguntas sobre a nossa embarcação ou sobre nossos produtos ou serviços, você deve consultar a nossa base de conhecimento para responder, utilizando a ferramenta `buscar_base_conhecimento`."
+        "Use essa ferramenta sempre que a resposta depender de informações factuais sobre a Piratas Pizzaria, a embarcação, atrações, ambiente, cardápio, produtos, serviços, funcionamento, regras, reservas, ingressos, eventos, estrutura, preços, horários, localização, formas de atendimento ou qualquer detalhe do negócio."
     ),
     show_result=True,
 )
