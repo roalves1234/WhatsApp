@@ -20,10 +20,10 @@ _MAX_RESULTADOS = 6
 @tool(
     name="buscar_base_conhecimento",
     description=(
-        "Busca trechos relevantes na base de conhecimento do usuário via RAG. "
-        "Use sempre que a pergunta depender de informações específicas do domínio."
+        "- Caso o usuário fizer perguntas sobre a nossa embarcação ou sobre nossos produtos ou serviços, você deve consultar a nossa base de conhecimento para responder, utilizando a ferramenta `buscar_base_conhecimento`."
+"
     ),
-    show_result=False,
+    show_result=True,
 )
 def buscar_base_conhecimento(consulta: str) -> str:
     """
