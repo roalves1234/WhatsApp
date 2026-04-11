@@ -18,7 +18,6 @@ _MAX_RESULTADOS = 6
     name="buscar_base_conhecimento",
     description=(
         "- Caso o usuário fizer perguntas sobre a nossa embarcação ou sobre nossos produtos ou serviços, você deve consultar a nossa base de conhecimento para responder, utilizando a ferramenta `buscar_base_conhecimento`."
-"
     ),
     show_result=True,
 )
