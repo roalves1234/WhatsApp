@@ -4,7 +4,7 @@ from execution.controller.conhecimento_service import ConhecimentoService
 from execution.controller.home_service import HomeService
 from execution.controller.interacao_service import InteracaoService
 from execution.controller.log_service import LogService
-from execution.dao.dao_supabase import DaoSupabase
+from execution.controller.supabase_service import SupabaseService
 
 
 class Controller:
@@ -42,7 +42,7 @@ class Controller:
 
     @staticmethod
     def testar_conexao_supabase() -> dict[str, str]:
-        return DaoSupabase.testar_conexao()
+        return SupabaseService.testar_conexao()
 
     @staticmethod
     async def doInteracaoAssistant(fone: str, nome: str) -> InteracaoAssistant:
