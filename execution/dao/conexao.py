@@ -1,5 +1,6 @@
 from threading import Lock
 
+from loguru import logger
 from pymongo import MongoClient
 from pymongo.database import Database
 from supabase import Client, create_client
@@ -12,6 +13,7 @@ class ConexaoSupabase:
 
     _cliente: Client | None = None
     _lock_inicializacao: Lock = Lock()
+    _TABELA_TESTE = "base_conhecimento"
 
     @classmethod
     def get_cliente(cls) -> Client:
@@ -22,6 +24,23 @@ class ConexaoSupabase:
                 if cls._cliente is None:
                     cls._cliente = create_client(SupabaseConfig.URL, SupabaseConfig.KEY)
         return cls._cliente
+
+    @classmethod
+    def testar_conexao(cls) -> dict[str, str]:
+        """
+        Testa a conexão com o Supabase via SDK (REST/PostgREST) executando uma
+        consulta leve na tabela de referência. Retorna sucesso ou falha.
+        """
+        try:
+            cliente = cls.get_cliente()
+            # Consulta mínima apenas para validar que a API REST responde.
+            cliente.table(cls._TABELA_TESTE).select("id").limit(1).execute()
+            logger.info("SUPABASE | Conexão SDK OK | url={url}", url=SupabaseConfig.URL)
+            return {"status": "ok", "url": SupabaseConfig.URL}
+
+        except Exception as e:
+            logger.error("SUPABASE | Falha na conexão SDK | url={url} | erro={erro}", url=SupabaseConfig.URL, erro=str(e))
+            return {"status": "erro", "url": SupabaseConfig.URL, "erro": str(e)}
 
 
 class ConexaoMongo:

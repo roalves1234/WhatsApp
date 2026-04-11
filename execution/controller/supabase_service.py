@@ -1,4 +1,4 @@
-from execution.dao.dao_supabase import DaoSupabase
+from execution.dao.conexao import ConexaoSupabase
 
 
 class SupabaseService:
@@ -6,4 +6,4 @@ class SupabaseService:
 
     @staticmethod
     def testar_conexao() -> dict[str, str]:
-        return DaoSupabase.testar_conexao()
+        return ConexaoSupabase.testar_conexao()
