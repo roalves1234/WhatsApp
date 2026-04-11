@@ -17,7 +17,7 @@ _MAX_RESULTADOS = 6
 @tool(
     name="buscar_base_conhecimento",
     description=(
-        "Use essa ferramenta sempre que a resposta depender de informações factuais sobre a Piratas Pizzaria, a embarcação, atrações, ambiente, cardápio, produtos, serviços, funcionamento, regras, reservas, ingressos, eventos, estrutura, preços, horários, localização, formas de atendimento ou qualquer detalhe do negócio."
+        "Use essa tool sempre que a resposta depender de informações factuais sobre a Piratas Pizzaria, a embarcação, atrações, ambiente, cardápio, produtos, serviços, funcionamento, regras, reservas, ingressos, eventos, estrutura, preços, horários, localização, formas de atendimento ou qualquer detalhe do negócio. Isso também vale quando o cliente fizer perguntas indiretas ou de continuação, como: 'Me fala mais'; 'Como funciona?'; 'Quanto custa?'; 'O que tem aí?'; 'Tem opção para criança?'; 'Não entendi direito'; 'E esse último item?'; 'Quais são as atrações?', entre outras similares."
     ),
     show_result=True,
 )
