@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field
 
 class ConteudoResposta(BaseModel):
     """Estrutura da resposta obtida da LLM"""
-    contexto_entrada: str = Field(description="Resumo do que foi solicitado pelo usuário")
     raciocinio: str = Field(description="Passo a passo utilizado para se chegar à resposta")
-    resposta: str = Field(description="A resposta final ao usuário")
+    cliente: str = Field(description="Contexto que o cliente trouxe")
+    sua_resposta: str = Field(description="A resposta final ao usuário")
 
 
 class InteracaoBase(BaseModel):

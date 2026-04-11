@@ -1,6 +1,7 @@
 import asyncio
 import time
 import json
+from pathlib import Path
 from datetime import datetime
 from loguru import logger
 from agno.agent import Agent
@@ -11,6 +12,10 @@ from execution.controller.classes import ConteudoResposta, InteracaoAssistant
 from execution.controller.agente_tool_rag import buscar_base_conhecimento
 from execution.dao.dao_interacao import DaoInteracao
 
+# Carrega o prompt do agente a partir do arquivo de texto
+_PROMPT_PATH = Path(__file__).parent / "agente_prompt.txt"
+_INSTRUCOES: list[str] = _PROMPT_PATH.read_text(encoding="utf-8").splitlines()
+
 
 # Schema JSON que define a estrutura de saída esperada da LLM
 SCHEMA_SAIDA: dict = {
@@ -20,11 +25,11 @@ SCHEMA_SAIDA: dict = {
         "schema": {
             "type": "object",
             "properties": {
-                "contexto_entrada": {"type": "string", "description": "Resumo do que foi solicitado pelo usuário"},
-                "raciocinio": {"type": "string", "description": "Passo a passo utilizado para se chegar à resposta"},
-                "resposta":   {"type": "string", "description": "A resposta final ao usuário"},
+                "raciocinio":    {"type": "string", "description": "Passo a passo utilizado para se chegar à resposta"},
+                "cliente":       {"type": "string", "description": "Contexto que o cliente trouxe"},
+                "sua_resposta":  {"type": "string", "description": "A resposta final ao usuário"},
             },
-            "required": ["contexto_entrada", "raciocinio", "resposta"],
+            "required": ["raciocinio", "cliente", "sua_resposta"],
             "additionalProperties": False,
         },
     },
@@ -57,20 +62,7 @@ class Agente:
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
             tools=[buscar_base_conhecimento],
-            instructions=[
-                "Você é um assistente virtual da Livraria Folha Viva, atendendo clientes pelo WhatsApp.",
-                "A Livraria Folha Viva é uma livraria especializada em livros nacionais e importados, com foco em literatura, "
-                "desenvolvimento pessoal, técnicos e infantis.",
-                "Responda de forma concisa, amigável e com linguagem adequada para atendimento ao cliente.",
-                "Sempre que o cliente fizer perguntas sobre o negócio, produtos, preços, formas de pagamento, "
-                "prazos de entrega, estoque, promoções ou qualquer informação específica da livraria, "
-                "chame a tool 'buscar_base_conhecimento' para consultar a FAQ antes de responder.",
-                "Para perguntas triviais ou de conhecimento geral que não envolvam a livraria, responda diretamente sem chamar a tool.",
-                "Sempre retorne sua resposta no formato JSON definido, preenchendo os campos:",
-                "  - contexto_entrada: um resumo do que foi solicitado pelo usuário",
-                "  - raciocinio: o passo a passo utilizado para se chegar à resposta",
-                "  - resposta: a resposta final ao usuário",
-            ],
+            instructions=_INSTRUCOES,
             markdown=False,
         )
         logger.info("AGENTE | Inicializado | modelo={modelo}", modelo=LLM.MODELO_ID)
@@ -119,7 +111,7 @@ class Agente:
         return InteracaoAssistant(
             fone=fone,
             nome=nome,
-            mensagem=conteudo.resposta,
+            mensagem=conteudo.sua_resposta,
             conteudo=conteudo,
             duracao=f"{duracao:.1f}s",
             tokens_entrada=resposta.metrics.input_tokens,
