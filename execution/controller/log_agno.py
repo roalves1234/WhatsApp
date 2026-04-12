@@ -9,16 +9,16 @@ class LogAgno:
     Responsável exclusivamente por configurar o logging do framework Agno em arquivo.
 
     Utiliza os loggers nomeados reconhecidos pelo Agno:
-      - agno           → logs do Agent   → logs/agno_agent.log
-      - agno-workflow  → logs do Workflow → logs/agno_workflow.log
+      - agno           → logs do Agent   → logs/agno_agent.agno
+      - agno-workflow  → logs do Workflow → logs/agno_workflow.agno
     """
 
     _FORMATO = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
     _LOG_DIR = Path("logs")
 
     _LOGGERS: list[tuple[str, str]] = [
-        ("agno",          "logs/agno_agent.log"),
-        ("agno-workflow", "logs/agno_workflow.log"),
+        ("agno",          "logs/agno_agent.agno"),
+        ("agno-workflow", "logs/agno_workflow.agno"),
     ]
 
     def __init__(self) -> None:
