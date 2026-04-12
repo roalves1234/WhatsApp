@@ -72,12 +72,12 @@ class LogFile:
             """Retorna metadados de um arquivo."""
             tamanho = caminho.stat().st_size
             modificado = datetime.fromtimestamp(caminho.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
-            return {"nome": caminho.name, "tamanho_bytes": tamanho, "modificado_em": modificado}
+            return {"nome": caminho.name, "tamanho": tamanho, "data": modificado}
 
         pasta_logs = Path("logs")
         arquivos_log = sorted(
             [_info_arquivo(f) for f in pasta_logs.glob("*.log") if f.is_file()],
-            key=lambda x: x["modificado_em"],
+            key=lambda x: x["data"],
             reverse=True,
         ) if pasta_logs.exists() else []
 
