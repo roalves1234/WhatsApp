@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizador de arquivos</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #f8fafc;
+      letter-spacing: 0.5px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      height: calc(100vh - 100px);
+    }
+
+    /* Sidebar de arquivos */
+    .sidebar {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .btn-arquivo {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: all 0.15s;
+      word-break: break-all;
+    }
+    .btn-arquivo:hover {
+      background: #2d3148;
+      border-color: #6366f1;
+      color: #f8fafc;
+    }
+    .btn-arquivo.ativo {
+      background: #312e81;
+      border-color: #6366f1;
+      color: #f8fafc;
+    }
+    .btn-arquivo .nome {
+      font-family: monospace;
+      font-size: 0.82rem;
+    }
+    .btn-arquivo .meta {
+      font-size: 0.68rem;
+      color: #64748b;
+    }
+    .btn-arquivo.ativo .meta { color: #a5b4fc; }
+
+    .vazio {
+      text-align: center;
+      padding: 30px 10px;
+      color: #475569;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    /* Painel de conteúdo */
+    .painel {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .painel-cabecalho {
+      padding: 12px 18px;
+      background: #14172a;
+      border-bottom: 1px solid #2d3148;
+      color: #7dd3fc;
+      font-family: monospace;
+      font-size: 0.88rem;
+      font-weight: 600;
+      word-break: break-all;
+    }
+    .painel-cabecalho:empty::before {
+      content: "Selecione um arquivo na lista ao lado";
+      color: #475569;
+      font-style: italic;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-weight: 400;
+    }
+
+    .conteudo {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 20px;
+      font-family: 'Cascadia Mono', Consolas, monospace;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      white-space: pre;
+      line-height: 1.45;
+    }
+
+    .contador {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f1117; }
+    ::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+  </style>
+</head>
+<body>
+
+  <h1>Visualizador de arquivos de log</h1>
+  <div class="contador">{{TOTAL}} arquivo(s) na pasta logs/</div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Arquivos</h2>
+      {{BOTOES}}
+    </aside>
+
+    <section class="painel">
+      <div class="painel-cabecalho">{{NOME_ARQUIVO}}</div>
+      <pre class="conteudo">{{CONTEUDO}}</pre>
+    </section>
+  </div>
+
+</body>
+</html>

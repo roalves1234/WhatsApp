@@ -1,4 +1,5 @@
 ﻿from datetime import date
+from execution.controller.arquivo_service import ArquivoService
 from execution.controller.classes import InteracaoAssistant, InteracaoUser
 from execution.controller.conhecimento_service import ConhecimentoService
 from execution.controller.home_service import HomeService
@@ -33,8 +34,8 @@ class Controller:
         return await ConhecimentoService.obter_conhecimento()
 
     @staticmethod
-    def get_lista_arquivos_log() -> dict[str, list[dict]]:
-        return LogService.obter_lista_arquivos_log()
+    def get_visualizador_arquivos(arquivo: str | None) -> str:
+        return ArquivoService.obter_visualizador_arquivos(nome_arquivo=arquivo)
 
     @staticmethod
     async def salvar_conhecimento(texto: str) -> dict[str, bool]:

@@ -83,12 +83,12 @@ async def salvar_conhecimento(payload: ConhecimentoPayload) -> dict[str, bool]:
     return await Controller.salvar_conhecimento(payload.texto)
 
 
-@app.get("/arquivos")
-async def get_arquivos() -> dict[str, list[dict]]:
-    """
-    Lista arquivos de log (.log) com nome, tamanho e data de modificação.
-    """
-    return Controller.get_lista_arquivos_log()
+@app.get("/visualizador-arquivos", response_class=HTMLResponse)
+async def get_visualizador_arquivos(
+    arquivo: str | None = Query(default=None, description="Nome do arquivo a exibir"),
+) -> str:
+    """Exibe a interface de visualização dos arquivos .log e .agno da pasta logs/."""
+    return Controller.get_visualizador_arquivos(arquivo=arquivo)
 
 
 @app.get("/interacoes/{fone}")

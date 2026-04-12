@@ -14,7 +14,8 @@
       "mcp__hostinger-api__VPS_getVirtualMachinesV1",
       "mcp__hostinger-api__VPS_getProjectListV1",
       "Bash(sshpass -V)",
-      "Bash(python -c \"import paramiko; print\\(paramiko.__version__\\)\")"
+      "Bash(python -c \"import paramiko; print\\(paramiko.__version__\\)\")",
+      "Bash(wc -l /d/Rodrigo/GitHub/WhatsApp/execution/controller/*.py)"
     ]
   }
 }
