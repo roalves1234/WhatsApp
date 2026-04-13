@@ -9,31 +9,13 @@ from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
 from execution.comum.const import LLM
 from execution.models.interacao import ConteudoResposta, InteracaoAssistant
-from execution.rules.agente_tool_rag import RagToolkit
+from execution.rules.agente.tool_base_conhecimento import ToolBaseConhecimento
+from execution.rules.agente.agente_comum import SCHEMA_SAIDA
 from execution.dao.interacao_dao import InteracaoDao
 
 # Carrega o prompt do agente a partir do arquivo de texto
 _PROMPT_PATH = Path(__file__).parent / "agente_prompt.txt"
 _INSTRUCOES: list[str] = _PROMPT_PATH.read_text(encoding="utf-8").splitlines()
-
-
-# Schema JSON que define a estrutura de saída esperada da LLM
-SCHEMA_SAIDA: dict = {
-    "type": "json_schema",
-    "json_schema": {
-        "name": "RespostaEstruturada",
-        "schema": {
-            "type": "object",
-            "properties": {
-                "raciocinio":    {"type": "string", "description": "Passo a passo utilizado para se chegar à resposta"},
-                "cliente":       {"type": "string", "description": "Contexto que o cliente trouxe"},
-                "sua_resposta":  {"type": "string", "description": "A resposta final ao usuário"},
-            },
-            "required": ["raciocinio", "cliente", "sua_resposta"],
-            "additionalProperties": False,
-        },
-    },
-}
 
 
 class Agente:
@@ -63,7 +45,7 @@ class Agente:
         # A constante equivalente da aplicação agora fica centralizada em LLM.
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
-            tools=[RagToolkit()],
+            tools=[ToolBaseConhecimento()],
             instructions=_INSTRUCOES,
             markdown=False,
         )
@@ -99,14 +81,9 @@ class Agente:
             )
             raise
 
-        duracao: float = time.time() - inicio
-
         logger.debug(
-            "LLM | Resposta recebida | fone={fone} | duração={duracao:.1f}s | tokens_entrada={tin} | tokens_saida={tout}",
+            "LLM | Resposta recebida | fone={fone}",
             fone=fone,
-            duracao=duracao,
-            tin=resposta.metrics.input_tokens,
-            tout=resposta.metrics.output_tokens,
         )
 
         conteudo = ConteudoResposta(**resposta.content)
@@ -115,7 +92,7 @@ class Agente:
             nome=nome,
             mensagem=conteudo.sua_resposta,
             conteudo=conteudo,
-            duracao=f"{duracao:.1f}s",
+            duracao=f"{time.time() - inicio:.1f}s",
             tokens_entrada=resposta.metrics.input_tokens,
             tokens_saida=resposta.metrics.output_tokens,
         )
