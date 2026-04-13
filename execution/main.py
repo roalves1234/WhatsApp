@@ -10,9 +10,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from loguru import logger
 from execution.controller.controller import Controller
-from execution.controller.classes import InteracaoAssistant
-from execution.models.conhecimento import ConhecimentoPayload
-from execution.models.webhook import RecebimentoPayload
+from execution.models.interacao import InteracaoAssistant
+from execution.models.webhook import RecebimentoPayload, ConhecimentoPayload
+from execution.rules.log_agno import LogAgno
+
+# Direciona os logs de debug do Agno para arquivos dedicados
+LogAgno()
 
 app = FastAPI(
     title="WhatsApp Project Application",
