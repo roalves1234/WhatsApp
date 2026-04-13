@@ -64,7 +64,7 @@ class ToolBaseConhecimento(Toolkit):
     def _formatar_resultado(self, linhas: list[dict]) -> str:
         """Formata os chunks retornados em texto estruturado para consumo do agente."""
         partes = [
-            f"[similaridade={linha['similarity']:.3f}]\n{linha['content']}"
+            f"Similaridade={linha['similarity']:.3f}\n{linha['content']}"
             for linha in linhas
         ]
         return "\n\n---\n\n".join(partes)
