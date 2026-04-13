@@ -2,7 +2,7 @@ import textwrap
 
 from loguru import logger
 
-from execution.rules.agente import Agente
+from execution.rules.agente.agente import Agente
 from execution.models.interacao import InteracaoAssistant, InteracaoUser
 from execution.comum.uzapi import Uzapi
 from execution.rules.version import Version

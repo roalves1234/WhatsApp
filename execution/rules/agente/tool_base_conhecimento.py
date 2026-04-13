@@ -27,7 +27,7 @@ _DESCRICAO_TOOL = (
 )
 
 
-class RagToolkit(Toolkit):
+class ToolBaseConhecimento(Toolkit):
     """
     Toolkit responsável por executar buscas RAG na base vetorial do Supabase.
     Encapsula o fluxo: geração de embedding → consulta RPC → formatação do resultado.
