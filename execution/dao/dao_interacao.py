@@ -3,10 +3,10 @@ import asyncio
 from loguru import logger
 
 from execution.dao.conexao import ConexaoMongo
-from execution.models.interacao import InteracaoBase
+from execution.controller.classes import InteracaoBase
 
 
-class InteracaoDao:
+class DaoInteracao:
     """DAO para persistir interações no MongoDB"""
     _COLECAO = "interacoes"
 

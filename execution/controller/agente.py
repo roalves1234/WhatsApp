@@ -7,10 +7,11 @@ from loguru import logger
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
-from execution.comum.const import LLM
-from execution.models.interacao import ConteudoResposta, InteracaoAssistant
-from execution.rules.agente_tool_rag import RagToolkit
-from execution.dao.interacao_dao import InteracaoDao
+from execution.controller.const import LLM
+from execution.controller.classes import ConteudoResposta, InteracaoAssistant
+from execution.controller.agente_tool_rag import buscar_base_conhecimento
+from execution.controller.log_agno import LogAgno
+from execution.dao.dao_interacao import DaoInteracao
 
 # Carrega o prompt do agente a partir do arquivo de texto
 _PROMPT_PATH = Path(__file__).parent / "agente_prompt.txt"
@@ -58,12 +59,14 @@ class Agente:
         """
         Inicializa o agente com o modelo especificado (executado apenas uma vez).
         """
+        # Direciona os logs de debug do Agno para arquivos dedicados
+        LogAgno()
 
         # O framework Agno continua buscando a variável de ambiente OPENAI_API_KEY.
         # A constante equivalente da aplicação agora fica centralizada em LLM.
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
-            tools=[RagToolkit()],
+            tools=[buscar_base_conhecimento],
             instructions=_INSTRUCOES,
             markdown=False,
         )

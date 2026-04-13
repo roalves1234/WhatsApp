@@ -11,7 +11,7 @@ class InfoArquivo:
     data_modificacao: datetime
 
 
-class ArquivoTool:
+class Arquivo:
     """Camada DAO para leitura dos arquivos da pasta logs/."""
 
     _DIR_LOGS: Path = Path(__file__).parent.parent.parent / "logs"
@@ -21,14 +21,14 @@ class ArquivoTool:
     @staticmethod
     def listar() -> list[InfoArquivo]:
         """Lista arquivos .log e .agno da pasta logs/, ordenados por data desc."""
-        if not ArquivoTool._DIR_LOGS.exists():
+        if not Arquivo._DIR_LOGS.exists():
             return []
 
         arquivos: list[InfoArquivo] = []
-        for caminho in ArquivoTool._DIR_LOGS.iterdir():
+        for caminho in Arquivo._DIR_LOGS.iterdir():
             if not caminho.is_file():
                 continue
-            if caminho.suffix not in ArquivoTool._EXTENSOES_PERMITIDAS:
+            if caminho.suffix not in Arquivo._EXTENSOES_PERMITIDAS:
                 continue
             estatisticas = caminho.stat()
             arquivos.append(
@@ -52,13 +52,13 @@ class ArquivoTool:
         nome_seguro = Path(nome).name
 
         # Valida extensão antes de tocar no sistema de arquivos
-        if Path(nome_seguro).suffix not in ArquivoTool._EXTENSOES_PERMITIDAS:
+        if Path(nome_seguro).suffix not in Arquivo._EXTENSOES_PERMITIDAS:
             return "[Arquivo inválido: extensão não permitida]"
 
-        caminho = (ArquivoTool._DIR_LOGS / nome_seguro).resolve()
+        caminho = (Arquivo._DIR_LOGS / nome_seguro).resolve()
 
         # Garante que o caminho resolvido permanece dentro da pasta logs/ (anti path traversal)
-        if caminho.parent != ArquivoTool._DIR_LOGS.resolve():
+        if caminho.parent != Arquivo._DIR_LOGS.resolve():
             return "[Arquivo inválido: caminho fora da pasta de logs]"
 
         if not caminho.exists() or not caminho.is_file():
@@ -67,14 +67,14 @@ class ArquivoTool:
         tamanho = caminho.stat().st_size
 
         # Para arquivos muito grandes, lê apenas os últimos N bytes para evitar travar o navegador
-        if tamanho > ArquivoTool._TAMANHO_MAXIMO_BYTES:
+        if tamanho > Arquivo._TAMANHO_MAXIMO_BYTES:
             with caminho.open("rb") as arquivo_binario:
-                arquivo_binario.seek(-ArquivoTool._TAMANHO_MAXIMO_BYTES, 2)
+                arquivo_binario.seek(-Arquivo._TAMANHO_MAXIMO_BYTES, 2)
                 bytes_finais = arquivo_binario.read()
             conteudo = bytes_finais.decode("utf-8", errors="replace")
             banner = (
                 f"[ARQUIVO TRUNCADO - exibindo últimos "
-                f"{ArquivoTool._TAMANHO_MAXIMO_BYTES // 1_000_000} MB de "
+                f"{Arquivo._TAMANHO_MAXIMO_BYTES // 1_000_000} MB de "
                 f"{tamanho // 1_000_000} MB]\n\n"
             )
             return banner + conteudo
