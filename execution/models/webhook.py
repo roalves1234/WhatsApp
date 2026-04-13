@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, Union
 
+
 class RecebimentoChatPayload(BaseModel):
     phone: Optional[str] = None
 
@@ -30,8 +31,3 @@ class EnvioPayload(BaseModel):
     number: str
     text: str
     readmessages: bool = True
-
-
-class ConhecimentoPayload(BaseModel):
-    """Payload recebido no endpoint POST /conhecimento/salvar."""
-    texto: str

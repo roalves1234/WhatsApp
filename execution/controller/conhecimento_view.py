@@ -4,7 +4,7 @@ from pathlib import Path
 class ConhecimentoView:
     """Renderiza a interface HTML da base de conhecimento."""
 
-    _TEMPLATE = Path(__file__).parent / "html" / "conhecimento.html"
+    _TEMPLATE = Path(__file__).parent.parent / "views" / "conhecimento.html"
 
     @staticmethod
     def get(texto: str) -> str:

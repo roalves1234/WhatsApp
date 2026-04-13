@@ -1,6 +1,6 @@
 from datetime import date
 
-from execution.rules.logs import LogFile
+from execution.controller.logs import LogFile
 
 
 class LogService:

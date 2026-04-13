@@ -2,11 +2,11 @@ import textwrap
 
 from loguru import logger
 
-from execution.rules.agente.agente import Agente
-from execution.models.interacao import InteracaoAssistant, InteracaoUser
-from execution.comum.uzapi import Uzapi
-from execution.rules.version import Version
-from execution.dao.interacao_dao import InteracaoDao
+from execution.controller.agente import Agente
+from execution.controller.classes import InteracaoAssistant, InteracaoUser
+from execution.controller.uzapi import Uzapi
+from execution.controller.version import Version
+from execution.dao.dao_interacao import DaoInteracao
 
 
 class InteracaoService:
@@ -16,25 +16,25 @@ class InteracaoService:
 
     @staticmethod
     async def eliminar_historico(fone: str) -> None:
-        await InteracaoDao.delete_by_fone(fone)
+        await DaoInteracao.delete_by_fone(fone)
         logger.info("HISTÓRICO | Eliminado | fone={fone}", fone=fone)
 
     @staticmethod
     async def obter_lista_interacao_por_fone(fone: str) -> list[dict]:
-        return await InteracaoDao.get_by_fone(fone)
+        return await DaoInteracao.get_by_fone(fone)
 
     @staticmethod
     async def salvar_interacao_user(fone: str, nome: str, mensagem: str) -> InteracaoUser:
         interacao_user = InteracaoUser(fone=fone, nome=nome, mensagem=mensagem)
-        await InteracaoDao.persistir(interacao_user)
+        await DaoInteracao.persistir(interacao_user)
         logger.debug("INTERAÇÃO USER | Persistida | fone={fone} | nome={nome}", fone=fone, nome=nome)
         return interacao_user
 
     @staticmethod
     async def criar_interacao_assistant(fone: str, nome: str) -> InteracaoAssistant:
-        contexto_entrada = await InteracaoDao.get_by_fone(fone)
+        contexto_entrada = await DaoInteracao.get_by_fone(fone)
         interacao_assistant = await InteracaoService._agente.obter_resposta(fone, nome, contexto_entrada)
-        await InteracaoDao.persistir(interacao_assistant)
+        await DaoInteracao.persistir(interacao_assistant)
 
         logger.debug("INTERAÇÃO ASSISTANT | Persistida | fone={fone}", fone=fone)
         return interacao_assistant

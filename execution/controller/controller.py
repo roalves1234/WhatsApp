@@ -1,11 +1,11 @@
 ﻿from datetime import date
-from execution.models.interacao import InteracaoAssistant, InteracaoUser
-from execution.dao.conexao import ConexaoSupabase
-from execution.services.arquivo_service import ArquivoService
-from execution.services.conhecimento_service import ConhecimentoService
-from execution.services.home_service import HomeService
-from execution.services.interacao_service import InteracaoService
-from execution.services.log_service import LogService
+from execution.controller.arquivo_service import ArquivoService
+from execution.controller.classes import InteracaoAssistant, InteracaoUser
+from execution.controller.conhecimento_service import ConhecimentoService
+from execution.controller.home_service import HomeService
+from execution.controller.interacao_service import InteracaoService
+from execution.controller.log_service import LogService
+from execution.controller.supabase_service import SupabaseService
 
 
 class Controller:
@@ -43,7 +43,7 @@ class Controller:
 
     @staticmethod
     def testar_conexao_supabase() -> dict[str, str]:
-        return ConexaoSupabase.testar_conexao()
+        return SupabaseService.testar_conexao()
 
     @staticmethod
     async def doInteracaoAssistant(fone: str, nome: str) -> InteracaoAssistant:

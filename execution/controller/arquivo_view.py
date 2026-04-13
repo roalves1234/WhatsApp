@@ -1,13 +1,13 @@
 from pathlib import Path
 from urllib.parse import quote
 
-from execution.rules.arquivo_tool import InfoArquivo
+from execution.controller.arquivo import InfoArquivo
 
 
 class ArquivoView:
     """Renderiza a interface HTML do visualizador de arquivos de log."""
 
-    _TEMPLATE = Path(__file__).parent / "html" / "visualizador-arquivos.html"
+    _TEMPLATE = Path(__file__).parent.parent / "views" / "visualizador-arquivos.html"
 
     @staticmethod
     def get(arquivos: list[InfoArquivo], nome_selecionado: str | None, conteudo: str) -> str:

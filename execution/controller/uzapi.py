@@ -6,7 +6,7 @@ import httpx
 from loguru import logger
 
 from execution.models.webhook import EnvioPayload
-from execution.comum.const import UzapiConfig
+from execution.controller.const import UzapiConfig
 
 
 class Uzapi:

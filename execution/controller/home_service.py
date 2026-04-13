@@ -1,4 +1,4 @@
-from execution.views.home_view import HomeView
+from execution.controller.home import Home
 
 
 class HomeService:
@@ -6,4 +6,4 @@ class HomeService:
 
     @staticmethod
     def obter_home() -> str:
-        return HomeView.get()
+        return Home.get()
