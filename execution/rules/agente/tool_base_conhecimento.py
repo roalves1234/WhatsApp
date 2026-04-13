@@ -14,7 +14,7 @@ from execution.dao.conexao import ConexaoSupabase
 _MAX_RESULTADOS = 6
 
 _DESCRICAO_TOOL = (
-    "Use **sempre** a tool `base_conhecimento` **antes de responder** se a mensagem mencionar direta ou indiretamente qualquer informação sobre a Piratas Pizzaria, como:"
+    "Use **sempre** a tool `buscar_base_conhecimento` **antes de responder** se a mensagem mencionar direta ou indiretamente qualquer informação sobre a Piratas Pizzaria, como:"
     "- atrações, ambiente, cardápio, pizzas, produtos, serviços"
     "- funcionamento, regras, reservas, ingressos, eventos"
     "- estrutura, preços, horários, localização, atendimento"
@@ -41,7 +41,7 @@ class ToolBaseConhecimento(Toolkit):
         )
         super().__init__(
             name="rag_toolkit",
-            tools=[self.base_conhecimento],
+            tools=[self.buscar_base_conhecimento],
         )
 
     def _gerar_embedding(self, consulta: str) -> list[float]:
@@ -69,8 +69,8 @@ class ToolBaseConhecimento(Toolkit):
         ]
         return "\n\n---\n\n".join(partes)
 
-    @tool(name="base_conhecimento", description=_DESCRICAO_TOOL, show_result=True)
-    def base_conhecimento(self, consulta: str) -> str:
+    @tool(name="buscar_base_conhecimento", description=_DESCRICAO_TOOL, show_result=True)
+    def buscar_base_conhecimento(self, consulta: str) -> str:
         """
         Executa o fluxo completo de RAG:
         1. Gera o embedding da consulta
