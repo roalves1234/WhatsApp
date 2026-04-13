@@ -1,5 +1,5 @@
-from execution.controller.arquivo import Arquivo
-from execution.controller.arquivo_view import ArquivoView
+from execution.rules.arquivo_tool import ArquivoTool
+from execution.views.arquivo_view import ArquivoView
 
 
 class ArquivoService:
@@ -7,8 +7,8 @@ class ArquivoService:
 
     @staticmethod
     def obter_visualizador_arquivos(nome_arquivo: str | None) -> str:
-        arquivos = Arquivo.listar()
-        conteudo = Arquivo.ler_conteudo(nome_arquivo) if nome_arquivo else ""
+        arquivos = ArquivoTool.listar()
+        conteudo = ArquivoTool.ler_conteudo(nome_arquivo) if nome_arquivo else ""
         return ArquivoView.get(
             arquivos=arquivos,
             nome_selecionado=nome_arquivo,

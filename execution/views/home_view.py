@@ -1,9 +1,9 @@
 import os
 
-from execution.controller.version import Version
+from execution.rules.version import Version
 
 
-class Home:
+class HomeView:
 
     @staticmethod
     def get() -> str:
@@ -12,7 +12,7 @@ class Home:
         Segue o padrão MVC: Controller buscando da View.
         """
         base_dir = os.path.join(os.path.dirname(__file__), "..")
-        view_path = os.path.join(base_dir, "views", "index.html")
+        view_path = os.path.join(base_dir, "views", "html", "index.html")
 
         try:
             with open(view_path, "r", encoding="utf-8") as file:

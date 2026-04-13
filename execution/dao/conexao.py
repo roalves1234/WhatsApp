@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from supabase import Client, create_client
 
-from execution.controller.const import SupabaseConfig
+from execution.comum.const import SupabaseConfig
 
 
 class ConexaoSupabase:

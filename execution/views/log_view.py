@@ -10,8 +10,8 @@ class LogView:
         Renderiza a view HTML do grid de logs a partir dos registros parseados
         e dos filtros ativos, que são pré-preenchidos no formulário.
         """
-        base_dir = os.path.join(os.path.dirname(__file__), "..")
-        view_path = os.path.join(base_dir, "views", "logs.html")
+        base_dir = os.path.dirname(__file__)
+        view_path = os.path.join(base_dir, "html", "logs.html")
 
         with open(view_path, "r", encoding="utf-8") as arquivo:
             html = arquivo.read()
