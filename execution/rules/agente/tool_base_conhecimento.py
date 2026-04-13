@@ -69,7 +69,7 @@ class ToolBaseConhecimento(Toolkit):
         ]
         return "\n\n---\n\n".join(partes)
 
-    @tool(name="base_conhecimento", description=_DESCRICAO_TOOL, show_result=True)
+    @tool(name="base_conhecimento", description=_DESCRICAO_TOOL)
     def base_conhecimento(self, consulta: str) -> str:
         """
         Executa o fluxo completo de RAG:
