@@ -3,7 +3,7 @@ from loguru import logger
 from execution.dao.conexao import ConexaoSupabase
 
 
-class DaoConhecimento:
+class ConhecimentoDao:
     """DAO responsável por ler e gravar a base de conhecimento no Supabase."""
 
     _TABELA = "base_conhecimento"
@@ -15,7 +15,7 @@ class DaoConhecimento:
         """
         def _executar():
             cliente = ConexaoSupabase.get_cliente()
-            resposta = cliente.table(DaoConhecimento._TABELA).select("texto").limit(1).execute()
+            resposta = cliente.table(ConhecimentoDao._TABELA).select("texto").limit(1).execute()
             return resposta.data
 
         dados: list[dict] = await asyncio.to_thread(_executar)
@@ -28,7 +28,7 @@ class DaoConhecimento:
         """Retorna o id do primeiro registro existente, ou None se a tabela estiver vazia."""
         def _executar():
             cliente = ConexaoSupabase.get_cliente()
-            resposta = cliente.table(DaoConhecimento._TABELA).select("id").limit(1).execute()
+            resposta = cliente.table(ConhecimentoDao._TABELA).select("id").limit(1).execute()
             return resposta.data
 
         dados: list[dict] = await asyncio.to_thread(_executar)
@@ -39,7 +39,7 @@ class DaoConhecimento:
         """Atualiza o campo 'texto' do registro identificado por id_registro."""
         def _executar():
             cliente = ConexaoSupabase.get_cliente()
-            cliente.table(DaoConhecimento._TABELA).update({"texto": texto}).eq("id", id_registro).execute()
+            cliente.table(ConhecimentoDao._TABELA).update({"texto": texto}).eq("id", id_registro).execute()
 
         await asyncio.to_thread(_executar)
 
@@ -48,18 +48,18 @@ class DaoConhecimento:
         """Insere um novo registro com o campo 'texto'."""
         def _executar():
             cliente = ConexaoSupabase.get_cliente()
-            cliente.table(DaoConhecimento._TABELA).insert({"texto": texto}).execute()
+            cliente.table(ConhecimentoDao._TABELA).insert({"texto": texto}).execute()
 
         await asyncio.to_thread(_executar)
 
     @staticmethod
     async def salvar_texto(texto: str) -> None:
         """Persiste o texto na tabela: atualiza o registro existente ou insere um novo."""
-        id_registro = await DaoConhecimento._buscar_id_registro()
+        id_registro = await ConhecimentoDao._buscar_id_registro()
 
         if id_registro:
-            await DaoConhecimento._atualizar_texto(id_registro, texto)
+            await ConhecimentoDao._atualizar_texto(id_registro, texto)
         else:
-            await DaoConhecimento._inserir_texto(texto)
+            await ConhecimentoDao._inserir_texto(texto)
 
         logger.info("CONHECIMENTO | Texto salvo | tamanho={n} chars", n=len(texto))

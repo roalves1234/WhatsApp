@@ -2,7 +2,7 @@ from collections import deque
 from datetime import date, datetime
 from pathlib import Path
 
-from execution.controller.log_view import LogView
+from execution.views.log_view import LogView
 
 
 class LogFile:

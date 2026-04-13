@@ -15,7 +15,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
 from supabase import Client
 
-from execution.controller.const import LLM, RAGConfig
+from execution.comum.const import LLM, RAGConfig
 from execution.dao.conexao import ConexaoSupabase
 
 
