@@ -8,8 +8,9 @@ from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
 from execution.comum.const import LLM
-from execution.models.interacao import InteracaoAssistant, ConteudoResposta
+from execution.models.interacao import ConteudoResposta, InteracaoAssistant
 from execution.rules.agente.tool_base_conhecimento import ToolBaseConhecimento
+from execution.rules.agente.agente_comum import SCHEMA_SAIDA
 from execution.dao.interacao_dao import InteracaoDao
 
 # Carrega o prompt do agente a partir do arquivo de texto
@@ -71,7 +72,7 @@ class Agente:
         inicio: float = time.time()
         try:
             # Executa em thread separada para não bloquear o event loop durante a chamada à OpenAI
-            resposta: RunOutput = await asyncio.to_thread(self._agente.run, contexto_entrada_json, response_model=ConteudoResposta)
+            resposta: RunOutput = await asyncio.to_thread(self._agente.run, contexto_entrada_json, output_schema=SCHEMA_SAIDA)
         except Exception:
             logger.exception(
                 "LLM | Erro na chamada | fone={fone} | contexto={ctx}",
@@ -85,8 +86,7 @@ class Agente:
             fone=fone,
         )
 
-        # Com response_model, resposta.content já é uma instância de ConteudoResposta
-        conteudo: ConteudoResposta = resposta.content
+        conteudo = ConteudoResposta(**resposta.content)
         return InteracaoAssistant(
             fone=fone,
             nome=nome,
