@@ -28,7 +28,7 @@ class ToolBaseConhecimento(Toolkit):
             api_key=LLM.OPENAI_API_KEY,
         )
         super().__init__(
-            name="rag_toolkit",
+            name="base_conhecimento",
             tools=[self.base_conhecimento],
         )
 
