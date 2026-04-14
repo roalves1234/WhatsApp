@@ -22,18 +22,41 @@ from execution.dao.conexao import ConexaoSupabase
 class BaseVetorial:
     """Gerencia a construção e persistência da base vetorial no Supabase (pgvector)."""
 
-    # Configurações de divisão de texto em chunks — exclusivas deste módulo
-    _CHUNK_SIZE = 400
-    _CHUNK_OVERLAP = 80
-
     # Separadores em ordem de prioridade: parágrafo > quebra de linha > espaço > caractere
     _SEPARADORES = ["\n\n", "\n", " ", ""]
 
-    # Nome da tabela no Supabase — exclusivo deste módulo
-    _NOME_TABELA = "documents"
-
     # UUID nulo usado para deletar todas as linhas via neq (nenhuma linha terá esse id)
     _UUID_NULO = "00000000-0000-0000-0000-000000000000"
+
+    def __init__(self) -> None:
+        # Parâmetros configuráveis via setters — sem valores padrão para forçar configuração explícita
+        self._chunk_size: int | None = None
+        self._overlap: int | None = None
+        self._nome_tabela: str | None = None
+
+    def setChunkSize(self, chunk_size: int) -> "BaseVetorial":
+        """Define o tamanho de cada chunk gerado pelo splitter."""
+        self._chunk_size = chunk_size
+        return self
+
+    def setOverlap(self, overlap: int) -> "BaseVetorial":
+        """Define a sobreposição (em caracteres) entre chunks consecutivos."""
+        self._overlap = overlap
+        return self
+
+    def setNomeTabela(self, nome_tabela: str) -> "BaseVetorial":
+        """Define o nome da tabela no Supabase onde os chunks serão persistidos."""
+        self._nome_tabela = nome_tabela
+        return self
+
+    def _validar_configuracao(self) -> None:
+        """Garante que todos os parâmetros obrigatórios foram configurados via setters."""
+        if self._chunk_size is None:
+            raise ValueError("BASE VETORIAL | chunk_size não configurado — chame setChunkSize()")
+        if self._overlap is None:
+            raise ValueError("BASE VETORIAL | overlap não configurado — chame setOverlap()")
+        if self._nome_tabela is None:
+            raise ValueError("BASE VETORIAL | nome_tabela não configurado — chame setNomeTabela()")
 
     def _criar_embeddings(self) -> OpenAIEmbeddings:
         """Instancia o modelo de embeddings da OpenAI."""
@@ -46,8 +69,8 @@ class BaseVetorial:
         """Divide o texto em chunks respeitando separadores naturais de parágrafo."""
         splitter = RecursiveCharacterTextSplitter(
             separators=self._SEPARADORES,
-            chunk_size=self._CHUNK_SIZE,
-            chunk_overlap=self._CHUNK_OVERLAP,
+            chunk_size=self._chunk_size,
+            chunk_overlap=self._overlap,
             length_function=len,
         )
         chunks = splitter.split_text(texto)
@@ -56,10 +79,10 @@ class BaseVetorial:
 
     def _remover_chunks_anteriores(self, cliente: Client) -> None:
         """Remove todos os registros da tabela para evitar duplicação a cada atualização."""
-        cliente.table(self._NOME_TABELA).delete().neq("id", self._UUID_NULO).execute()
+        cliente.table(self._nome_tabela).delete().neq("id", self._UUID_NULO).execute()
         logger.debug(
             "BASE VETORIAL | Chunks anteriores removidos da tabela '{tabela}'",
-            tabela=self._NOME_TABELA,
+            tabela=self._nome_tabela,
         )
 
     def _persistir_chunks(self, chunks: list[str], embeddings: OpenAIEmbeddings, cliente: Client) -> None:
@@ -68,12 +91,12 @@ class BaseVetorial:
             texts=chunks,
             embedding=embeddings,
             client=cliente,
-            table_name=self._NOME_TABELA,
+            table_name=self._nome_tabela,
             query_name=RAGConfig.NOME_FUNCAO_RPC,
         )
         logger.info(
             "BASE VETORIAL | Chunks gravados no Supabase | tabela={tabela} | total={n}",
-            tabela=self._NOME_TABELA,
+            tabela=self._nome_tabela,
             n=len(chunks),
         )
 
@@ -85,6 +108,8 @@ class BaseVetorial:
         Args:
             texto: Conteúdo completo da base de conhecimento.
         """
+        self._validar_configuracao()
+
         if not texto.strip():
             logger.warning("BASE VETORIAL | Texto vazio — nada será gravado no Supabase")
             return

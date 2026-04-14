@@ -18,5 +18,11 @@ class ConhecimentoService:
         await ConhecimentoDao.salvar_texto(texto)
         # atualizar() é síncrono e faz I/O bloqueante (OpenAI + Supabase),
         # por isso é executado em thread separada para não bloquear o event loop
-        await asyncio.to_thread(BaseVetorial().atualizar, texto)
+        base_vetorial = (
+            BaseVetorial()
+            .setChunkSize(400)
+            .setOverlap(80)
+            .setNomeTabela("documents")
+        )
+        await asyncio.to_thread(base_vetorial.atualizar, texto)
         return {"sucesso": True}
