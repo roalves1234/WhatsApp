@@ -33,7 +33,16 @@ class InteracaoService:
     @staticmethod
     async def criar_interacao_assistant(fone: str, nome: str) -> InteracaoAssistant:
         contexto_entrada = await InteracaoDao.get_by_fone(fone)
-        interacao_assistant = await InteracaoService._agente.obter_resposta(fone, nome, contexto_entrada)
+        resposta_agente = await InteracaoService._agente.obter_resposta(contexto_entrada)
+        interacao_assistant = InteracaoAssistant(
+            fone=fone,
+            nome=nome,
+            mensagem=resposta_agente.conteudo.sua_resposta,
+            conteudo=resposta_agente.conteudo,
+            duracao=resposta_agente.duracao,
+            tokens_entrada=resposta_agente.tokens_entrada,
+            tokens_saida=resposta_agente.tokens_saida,
+        )
         await InteracaoDao.persistir(interacao_assistant)
 
         logger.debug("INTERAÇÃO ASSISTANT | Persistida | fone={fone}", fone=fone)
