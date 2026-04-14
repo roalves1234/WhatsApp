@@ -1,24 +1,22 @@
 """
-Toolkit de RAG que consulta a base vetorial no Supabase via REST
-(SDK oficial), usando a RPC 'match_documents' já definida em base_vetorial.sql.
+Módulo responsável pela execução do fluxo RAG (Retrieval-Augmented Generation):
+geração de embedding → consulta RPC no Supabase → formatação dos chunks retornados.
 """
 
-from agno.tools import Toolkit, tool
 from langchain_openai import OpenAIEmbeddings
 from loguru import logger
+from supabase import Client
 
 from execution.comum.const import LLM, RagConfig
-from execution.dao.conexao import ConexaoSupabase
-from execution.rules.agente.agente_prompts import Prompts
 
-# Quantidade máxima de chunks retornados na busca — exclusivo deste módulo
+# Quantidade máxima de chunks retornados na busca
 _MAX_RESULTADOS = 6
 
 
-class ToolBaseConhecimento(Toolkit):
+class RAG:
     """
-    Toolkit responsável por executar buscas RAG na base vetorial do Supabase.
-    Encapsula o fluxo: geração de embedding → consulta RPC → formatação do resultado.
+    Encapsula o fluxo de busca RAG na base vetorial do Supabase.
+    Responsável por: gerar embedding → consultar RPC → formatar resultado.
     """
 
     def __init__(self) -> None:
@@ -27,10 +25,12 @@ class ToolBaseConhecimento(Toolkit):
             model=RagConfig.MODELO_EMBEDDING,
             api_key=LLM.OPENAI_API_KEY,
         )
-        super().__init__(
-            name="base_conhecimento",
-            tools=[self.base_conhecimento],
-        )
+        self._cliente: Client | None = None
+
+    def setCliente(self, cliente: Client) -> "RAG":
+        """Define o cliente Supabase utilizado na consulta vetorial."""
+        self._cliente = cliente
+        return self
 
     def _gerar_embedding(self, consulta: str) -> list[float]:
         """Converte a consulta em vetor numérico usando o modelo de embedding configurado."""
@@ -38,8 +38,9 @@ class ToolBaseConhecimento(Toolkit):
 
     def _consultar_banco(self, vetor_consulta: list[float]) -> list[dict]:
         """Executa a RPC 'match_documents' no Supabase e retorna os chunks encontrados."""
-        cliente = ConexaoSupabase.get_cliente()
-        resposta = cliente.rpc(
+        if self._cliente is None:
+            raise RuntimeError("RAG | Cliente Supabase não configurado — chame setCliente()")
+        resposta = self._cliente.rpc(
             RagConfig.NOME_FUNCAO_RPC,
             {
                 "query_embedding": vetor_consulta,
@@ -57,13 +58,18 @@ class ToolBaseConhecimento(Toolkit):
         ]
         return "\n\n---\n\n".join(partes)
 
-    @tool(name="base_conhecimento", description=Prompts.TOOL_BASE_CONHECIMENTO)
-    def base_conhecimento(self, consulta: str) -> str:
+    def buscar(self, consulta: str) -> str:
         """
         Executa o fluxo completo de RAG:
         1. Gera o embedding da consulta
         2. Consulta a RPC 'match_documents' no Supabase
-        3. Retorna os chunks formatados para o agente
+        3. Retorna os chunks formatados
+
+        Args:
+            consulta: Texto da pergunta a ser buscada na base vetorial.
+
+        Returns:
+            Chunks relevantes formatados ou mensagem de ausência de resultado.
         """
         vetor_consulta = self._gerar_embedding(consulta)
         linhas = self._consultar_banco(vetor_consulta)

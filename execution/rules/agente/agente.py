@@ -8,7 +8,7 @@ from agno.models.openai import OpenAIChat
 from agno.run.agent import RunOutput
 from execution.comum.const import LLM
 from execution.models.interacao import ConteudoResposta, InteracaoAssistant
-from execution.rules.agente.tool_base_conhecimento import ToolBaseConhecimento
+from execution.rules.agente.toolkit_agno import ToolKitAgno
 from execution.rules.agente.agente_comum import SCHEMA_SAIDA
 from execution.rules.agente.agente_prompts import Prompts
 from execution.dao.interacao_dao import InteracaoDao
@@ -39,7 +39,7 @@ class Agente:
 
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
-            tools=[ToolBaseConhecimento()],
+            tools=[ToolKitAgno()],
             instructions=Prompts.AGENTE,
             markdown=False,
         )
