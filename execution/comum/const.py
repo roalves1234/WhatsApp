@@ -25,7 +25,7 @@ class SupabaseConfig:
     KEY = os.getenv("SUPABASE_KEY", "")
 
 
-class RAGConfig:
+class RagConfig:
     """
     Classe de constantes compartilhadas pelo sistema de RAG
     (base vetorial + busca por similaridade).

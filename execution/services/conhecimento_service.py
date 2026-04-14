@@ -1,8 +1,9 @@
 import asyncio
 
-from execution.rules.base_vetorial import BaseVetorial
+from execution.comum.base_vetorial import BaseVetorial
 from execution.views.conhecimento_view import ConhecimentoView
 from execution.dao.conhecimento_dao import ConhecimentoDao
+from execution.dao.conexao import ConexaoSupabase
 
 
 class ConhecimentoService:
@@ -23,6 +24,7 @@ class ConhecimentoService:
             .setChunkSize(400)
             .setOverlap(80)
             .setNomeTabela("documents")
+            .setCliente(ConexaoSupabase.get_cliente())
         )
         await asyncio.to_thread(base_vetorial.atualizar, texto)
         return {"sucesso": True}

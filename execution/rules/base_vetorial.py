@@ -15,8 +15,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
 from supabase import Client
 
-from execution.comum.const import LLM, RAGConfig
-from execution.dao.conexao import ConexaoSupabase
+from execution.comum.const import LLM, RagConfig
 
 
 class BaseVetorial:
@@ -33,6 +32,7 @@ class BaseVetorial:
         self._chunk_size: int | None = None
         self._overlap: int | None = None
         self._nome_tabela: str | None = None
+        self._cliente: Client | None = None
 
     def setChunkSize(self, chunk_size: int) -> "BaseVetorial":
         """Define o tamanho de cada chunk gerado pelo splitter."""
@@ -49,6 +49,11 @@ class BaseVetorial:
         self._nome_tabela = nome_tabela
         return self
 
+    def setCliente(self, cliente: Client) -> "BaseVetorial":
+        """Define o cliente Supabase utilizado para as operações de persistência."""
+        self._cliente = cliente
+        return self
+
     def _validar_configuracao(self) -> None:
         """Garante que todos os parâmetros obrigatórios foram configurados via setters."""
         if self._chunk_size is None:
@@ -57,11 +62,13 @@ class BaseVetorial:
             raise ValueError("BASE VETORIAL | overlap não configurado — chame setOverlap()")
         if self._nome_tabela is None:
             raise ValueError("BASE VETORIAL | nome_tabela não configurado — chame setNomeTabela()")
+        if self._cliente is None:
+            raise ValueError("BASE VETORIAL | cliente não configurado — chame setCliente()")
 
     def _criar_embeddings(self) -> OpenAIEmbeddings:
         """Instancia o modelo de embeddings da OpenAI."""
         return OpenAIEmbeddings(
-            model=RAGConfig.MODELO_EMBEDDING,
+            model=RagConfig.MODELO_EMBEDDING,
             api_key=LLM.OPENAI_API_KEY,
         )
 
@@ -77,22 +84,22 @@ class BaseVetorial:
         logger.info("BASE VETORIAL | Chunks gerados | total={n}", n=len(chunks))
         return chunks
 
-    def _remover_chunks_anteriores(self, cliente: Client) -> None:
+    def _remover_chunks_anteriores(self) -> None:
         """Remove todos os registros da tabela para evitar duplicação a cada atualização."""
-        cliente.table(self._nome_tabela).delete().neq("id", self._UUID_NULO).execute()
+        self._cliente.table(self._nome_tabela).delete().neq("id", self._UUID_NULO).execute()
         logger.debug(
             "BASE VETORIAL | Chunks anteriores removidos da tabela '{tabela}'",
             tabela=self._nome_tabela,
         )
 
-    def _persistir_chunks(self, chunks: list[str], embeddings: OpenAIEmbeddings, cliente: Client) -> None:
+    def _persistir_chunks(self, chunks: list[str], embeddings: OpenAIEmbeddings) -> None:
         """Gera embeddings dos chunks e os persiste no Supabase via pgvector."""
         SupabaseVectorStore.from_texts(
             texts=chunks,
             embedding=embeddings,
-            client=cliente,
+            client=self._cliente,
             table_name=self._nome_tabela,
-            query_name=RAGConfig.NOME_FUNCAO_RPC,
+            query_name=RagConfig.NOME_FUNCAO_RPC,
         )
         logger.info(
             "BASE VETORIAL | Chunks gravados no Supabase | tabela={tabela} | total={n}",
@@ -114,9 +121,8 @@ class BaseVetorial:
             logger.warning("BASE VETORIAL | Texto vazio — nada será gravado no Supabase")
             return
 
-        cliente: Client = ConexaoSupabase.get_cliente()
         embeddings = self._criar_embeddings()
         chunks = self._dividir_em_chunks(texto)
 
-        self._remover_chunks_anteriores(cliente)
-        self._persistir_chunks(chunks, embeddings, cliente)
+        self._remover_chunks_anteriores()
+        self._persistir_chunks(chunks, embeddings)

@@ -7,7 +7,7 @@ from agno.tools import Toolkit, tool
 from langchain_openai import OpenAIEmbeddings
 from loguru import logger
 
-from execution.comum.const import LLM, RAGConfig
+from execution.comum.const import LLM, RagConfig
 from execution.dao.conexao import ConexaoSupabase
 from execution.rules.agente.agente_prompts import Prompts
 
@@ -24,7 +24,7 @@ class ToolBaseConhecimento(Toolkit):
     def __init__(self) -> None:
         # Instância reutilizável do modelo de embedding (evita recriação a cada chamada)
         self._embeddings = OpenAIEmbeddings(
-            model=RAGConfig.MODELO_EMBEDDING,
+            model=RagConfig.MODELO_EMBEDDING,
             api_key=LLM.OPENAI_API_KEY,
         )
         super().__init__(
@@ -40,7 +40,7 @@ class ToolBaseConhecimento(Toolkit):
         """Executa a RPC 'match_documents' no Supabase e retorna os chunks encontrados."""
         cliente = ConexaoSupabase.get_cliente()
         resposta = cliente.rpc(
-            RAGConfig.NOME_FUNCAO_RPC,
+            RagConfig.NOME_FUNCAO_RPC,
             {
                 "query_embedding": vetor_consulta,
                 "match_count": _MAX_RESULTADOS,
