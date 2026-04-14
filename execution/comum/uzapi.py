@@ -1,12 +1,19 @@
 import asyncio
 import inspect
-from typing import Any
-
 import httpx
+from typing import Any
 from loguru import logger
-
-from execution.models.webhook import EnvioPayload
+from pydantic import BaseModel
 from execution.comum.const import UzapiConfig
+
+class EnvioPayload(BaseModel):
+    """
+    Pydantic model representing the request body for
+    POST https://free.uazapi.com/send/text
+    """
+    number: str
+    text: str
+    readmessages: bool = True
 
 
 class Uzapi:

@@ -22,16 +22,6 @@ class RecebimentoPayload(BaseModel):
     message: Optional[RecebimentoMessagePayload] = None
 
 
-class EnvioPayload(BaseModel):
-    """
-    Pydantic model representing the request body for
-    POST https://free.uazapi.com/send/text
-    """
-    number: str
-    text: str
-    readmessages: bool = True
-
-
 class ConhecimentoPayload(BaseModel):
     """Payload recebido no endpoint POST /conhecimento/salvar."""
     texto: str
