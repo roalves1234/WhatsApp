@@ -41,7 +41,6 @@ class Agente:
             model=OpenAIChat(id=LLM.MODELO_ID),
             tools=[ToolKitAgno()],
             instructions=Prompts.AGENTE,
-            markdown=False,
         )
         logger.info("AGENTE | Inicializado | modelo={modelo}", modelo=LLM.MODELO_ID)
 
