@@ -36,7 +36,7 @@ class ToolBaseConhecimento(Toolkit):
         """Converte a consulta em vetor numérico usando o modelo de embedding configurado."""
         return self._embeddings.embed_query(consulta)
 
-    def _consultar_supabase(self, vetor_consulta: list[float]) -> list[dict]:
+    def _consultar_banco(self, vetor_consulta: list[float]) -> list[dict]:
         """Executa a RPC 'match_documents' no Supabase e retorna os chunks encontrados."""
         cliente = ConexaoSupabase.get_cliente()
         resposta = cliente.rpc(
@@ -66,7 +66,7 @@ class ToolBaseConhecimento(Toolkit):
         3. Retorna os chunks formatados para o agente
         """
         vetor_consulta = self._gerar_embedding(consulta)
-        linhas = self._consultar_supabase(vetor_consulta)
+        linhas = self._consultar_banco(vetor_consulta)
 
         logger.info("RAG | Chunks encontrados | total={n}", n=len(linhas))
 
