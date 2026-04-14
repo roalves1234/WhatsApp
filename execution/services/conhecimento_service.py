@@ -1,6 +1,6 @@
 import asyncio
 
-from execution.comum.base_vetorial import BaseVetorial
+from execution.rules.base_vetorial import BaseVetorial
 from execution.views.conhecimento_view import ConhecimentoView
 from execution.dao.conhecimento_dao import ConhecimentoDao
 from execution.dao.conexao import ConexaoSupabase
