@@ -9,22 +9,10 @@ from loguru import logger
 
 from execution.comum.const import LLM, RAGConfig
 from execution.dao.conexao import ConexaoSupabase
+from execution.rules.agente.agente_prompts import Prompts
 
 # Quantidade máxima de chunks retornados na busca — exclusivo deste módulo
 _MAX_RESULTADOS = 6
-
-_DESCRICAO_TOOL = (
-    "Use **sempre** a tool `base_conhecimento` **antes de responder** se a mensagem mencionar direta ou indiretamente qualquer informação sobre a Piratas Pizzaria, como:"
-    "- atrações, ambiente, cardápio, pizzas, produtos, serviços"
-    "- funcionamento, regras, reservas, ingressos, eventos"
-    "- estrutura, preços, horários, localização, atendimento"
-    "- experiência para crianças ou adultos"
-    "- qualquer detalhe factual do negócio"
-    "Isso inclui perguntas indiretas ou de continuação, como:"
-    "'Me fala mais', 'Como funciona?', 'Quanto custa?', 'O que tem aí?', 'Não entendi', 'E esse último item?', 'Quais são as atrações?'"
-    "**Se houver dúvida, use a tool.**"
-    "**Nunca responda com suposição ou conhecimento próprio sobre a Piratas Pizzaria.**"
-)
 
 
 class ToolBaseConhecimento(Toolkit):
@@ -69,7 +57,7 @@ class ToolBaseConhecimento(Toolkit):
         ]
         return "\n\n---\n\n".join(partes)
 
-    @tool(name="base_conhecimento", description=_DESCRICAO_TOOL)
+    @tool(name="base_conhecimento", description=Prompts.TOOL_BASE_CONHECIMENTO)
     def base_conhecimento(self, consulta: str) -> str:
         """
         Executa o fluxo completo de RAG:

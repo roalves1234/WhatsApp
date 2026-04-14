@@ -1,7 +1,6 @@
 import asyncio
 import time
 import json
-from pathlib import Path
 from datetime import datetime
 from loguru import logger
 from agno.agent import Agent
@@ -11,11 +10,8 @@ from execution.comum.const import LLM
 from execution.models.interacao import ConteudoResposta, InteracaoAssistant
 from execution.rules.agente.tool_base_conhecimento import ToolBaseConhecimento
 from execution.rules.agente.agente_comum import SCHEMA_SAIDA
+from execution.rules.agente.agente_prompts import Prompts
 from execution.dao.interacao_dao import InteracaoDao
-
-# Carrega o prompt do agente a partir do arquivo de texto
-_PROMPT_PATH = Path(__file__).parent / "agente_prompt.txt"
-_INSTRUCOES: list[str] = _PROMPT_PATH.read_text(encoding="utf-8").splitlines()
 
 
 class Agente:
@@ -46,7 +42,7 @@ class Agente:
         self._agente = Agent(
             model=OpenAIChat(id=LLM.MODELO_ID),
             tools=[ToolBaseConhecimento()],
-            instructions=_INSTRUCOES,
+            instructions=Prompts.AGENTE,
             markdown=False,
         )
         logger.info("AGENTE | Inicializado | modelo={modelo}", modelo=LLM.MODELO_ID)
