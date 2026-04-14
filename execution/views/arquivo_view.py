@@ -1,7 +1,7 @@
 from pathlib import Path
 from urllib.parse import quote
 
-from execution.rules.arquivo_tool import InfoArquivo
+from execution.comum.arquivo_tool import InfoArquivo
 
 
 class ArquivoView:
