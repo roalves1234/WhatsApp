@@ -84,6 +84,7 @@ class Agente:
         inicio: float = time.time()
         try:
             # Executa em thread separada para não bloquear o event loop durante a chamada à OpenAI
+            print("OUTPUT SCHEMA: " + _output_schema)
             resposta: RunOutput = await asyncio.to_thread(
                 self._agente.run, contexto_entrada_json, output_schema=self._output_schema
             )
