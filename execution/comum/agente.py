@@ -8,6 +8,7 @@ import asyncio
 import json
 import time
 from dataclasses import dataclass
+from typing import Any
 
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
@@ -21,7 +22,7 @@ from execution.comum.const import LLM
 @dataclass
 class RespostaAgente:
     """Resultado puro da chamada ao Agno, sem dados específicos de nenhum fluxo."""
-    content: dict
+    content: Any
     duracao: str
     tokens_entrada: int | None
     tokens_saida: int | None
