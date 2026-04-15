@@ -87,7 +87,7 @@ Mantenha sempre:
 Responda sempre em **JSON válido** com exatamente estes campos:
 ```json
 {
-  "analise_resumida": "Resumo breve da intenção do cliente e da regra aplicada.",
+  "raciocinio": "Resumo breve da intenção do cliente e da regra aplicada.",
   "cliente": "Resumo objetivo do que o cliente disse.",
   "sua_resposta": "Resposta final ao cliente, em tom pirata alegre e natural."
 }
