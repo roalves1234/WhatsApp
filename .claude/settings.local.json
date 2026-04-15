@@ -17,7 +17,8 @@
       "Bash(python -c \"import paramiko; print\\(paramiko.__version__\\)\")",
       "Bash(wc -l /d/Rodrigo/GitHub/WhatsApp/execution/controller/*.py)",
       "Bash(find d:/Rodrigo/GitHub/WhatsApp/execution -name \"*.pyc\" -delete)",
-      "Bash(find d:/Rodrigo/GitHub/WhatsApp/execution -name \"__pycache__\" -type d -exec rm -rf {} +)"
+      "Bash(find d:/Rodrigo/GitHub/WhatsApp/execution -name \"__pycache__\" -type d -exec rm -rf {} +)",
+      "Bash(python3 -c \"import os; os.remove\\('d:/Rodrigo/GitHub/WhatsApp/execution/comum/agente_comum.py'\\); os.remove\\('d:/Rodrigo/GitHub/WhatsApp/execution/rules/agente/agente.py'\\)\")"
     ]
   }
 }

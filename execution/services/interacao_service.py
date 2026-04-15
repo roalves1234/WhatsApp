@@ -2,7 +2,7 @@ import textwrap
 
 from loguru import logger
 
-from execution.rules.agente.agente import Agente
+from execution.rules.agente.agente_impl import AgenteImpl
 from execution.models.interacao import InteracaoAssistant, InteracaoUser
 from execution.comum.uzapi import Uzapi
 from execution.rules.version import Version
@@ -12,7 +12,7 @@ from execution.dao.interacao_dao import InteracaoDao
 class InteracaoService:
     """Serviço responsável pelo fluxo de interações do usuário e do assistente."""
 
-    _agente: Agente = Agente()
+    _agente: AgenteImpl = AgenteImpl()
 
     @staticmethod
     async def eliminar_historico(fone: str) -> None:
