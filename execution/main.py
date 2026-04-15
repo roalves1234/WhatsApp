@@ -12,7 +12,7 @@ from loguru import logger
 from execution.controller.controller import Controller
 from execution.models.interacao import InteracaoAssistant
 from execution.models.webhook import RecebimentoPayload, ConhecimentoPayload
-from execution.rules.log_agno import LogAgno
+from execution.comum.log_agno import LogAgno
 
 # Direciona os logs de debug do Agno para arquivos dedicados
 LogAgno()

@@ -31,4 +31,4 @@ class ToolKitAgno(Toolkit):
         Returns:
             str: Chunks relevantes formatados ou mensagem de ausência de resultado.
         """
-        return RAG().setCliente(ConexaoSupabase.get_cliente()).buscar(consulta)
+        return RAG().set_client(ConexaoSupabase.get_cliente()).buscar(consulta)

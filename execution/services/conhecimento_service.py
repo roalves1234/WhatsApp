@@ -21,10 +21,10 @@ class ConhecimentoService:
         # por isso é executado em thread separada para não bloquear o event loop
         base_vetorial = (
             BaseVetorial()
-            .setChunkSize(400)
-            .setOverlap(80)
-            .setNomeTabela("documents")
-            .setCliente(ConexaoSupabase.get_cliente())
+            .set_chunk_size(400)
+            .set_overlap(80)
+            .set_nome_tabela("documents")
+            .set_client(ConexaoSupabase.get_cliente())
         )
         await asyncio.to_thread(base_vetorial.atualizar, texto)
         return {"sucesso": True}

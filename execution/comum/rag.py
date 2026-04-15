@@ -25,11 +25,11 @@ class RAG:
             model=RagConfig.MODELO_EMBEDDING,
             api_key=LLM.OPENAI_API_KEY,
         )
-        self._cliente: Client | None = None
+        self._client: Client | None = None
 
-    def setCliente(self, cliente: Client) -> "RAG":
+    def set_client(self, client: Client) -> "RAG":
         """Define o cliente Supabase utilizado na consulta vetorial."""
-        self._cliente = cliente
+        self._client = client
         return self
 
     def _gerar_embedding(self, consulta: str) -> list[float]:
@@ -38,9 +38,9 @@ class RAG:
 
     def _consultar_banco(self, vetor_consulta: list[float]) -> list[dict]:
         """Executa a RPC 'match_documents' no Supabase e retorna os chunks encontrados."""
-        if self._cliente is None:
+        if self._client is None:
             raise RuntimeError("RAG | Cliente Supabase não configurado — chame setCliente()")
-        resposta = self._cliente.rpc(
+        resposta = self._client.rpc(
             RagConfig.NOME_FUNCAO_RPC,
             {
                 "query_embedding": vetor_consulta,

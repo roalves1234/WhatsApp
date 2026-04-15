@@ -32,26 +32,26 @@ class BaseVetorial:
         self._chunk_size: int | None = None
         self._overlap: int | None = None
         self._nome_tabela: str | None = None
-        self._cliente: Client | None = None
+        self._client: Client | None = None
 
-    def setChunkSize(self, chunk_size: int) -> "BaseVetorial":
+    def set_chunk_size(self, chunk_size: int) -> "BaseVetorial":
         """Define o tamanho de cada chunk gerado pelo splitter."""
         self._chunk_size = chunk_size
         return self
 
-    def setOverlap(self, overlap: int) -> "BaseVetorial":
+    def set_overlap(self, overlap: int) -> "BaseVetorial":
         """Define a sobreposição (em caracteres) entre chunks consecutivos."""
         self._overlap = overlap
         return self
 
-    def setNomeTabela(self, nome_tabela: str) -> "BaseVetorial":
+    def set_nome_tabela(self, nome_tabela: str) -> "BaseVetorial":
         """Define o nome da tabela no Supabase onde os chunks serão persistidos."""
         self._nome_tabela = nome_tabela
         return self
 
-    def setCliente(self, cliente: Client) -> "BaseVetorial":
+    def set_client(self, client: Client) -> "BaseVetorial":
         """Define o cliente Supabase utilizado para as operações de persistência."""
-        self._cliente = cliente
+        self._client = client
         return self
 
     def _validar_configuracao(self) -> None:
@@ -62,7 +62,7 @@ class BaseVetorial:
             raise ValueError("BASE VETORIAL | overlap não configurado — chame setOverlap()")
         if self._nome_tabela is None:
             raise ValueError("BASE VETORIAL | nome_tabela não configurado — chame setNomeTabela()")
-        if self._cliente is None:
+        if self._client is None:
             raise ValueError("BASE VETORIAL | cliente não configurado — chame setCliente()")
 
     def _criar_embeddings(self) -> OpenAIEmbeddings:
@@ -86,7 +86,7 @@ class BaseVetorial:
 
     def _remover_chunks_anteriores(self) -> None:
         """Remove todos os registros da tabela para evitar duplicação a cada atualização."""
-        self._cliente.table(self._nome_tabela).delete().neq("id", self._UUID_NULO).execute()
+        self._client.table(self._nome_tabela).delete().neq("id", self._UUID_NULO).execute()
         logger.debug(
             "BASE VETORIAL | Chunks anteriores removidos da tabela '{tabela}'",
             tabela=self._nome_tabela,
@@ -97,7 +97,7 @@ class BaseVetorial:
         SupabaseVectorStore.from_texts(
             texts=chunks,
             embedding=embeddings,
-            client=self._cliente,
+            client=self._client,
             table_name=self._nome_tabela,
             query_name=RagConfig.NOME_FUNCAO_RPC,
         )
